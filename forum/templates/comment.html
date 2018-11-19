@@ -1,0 +1,12 @@
+<!doctype html>
+<title>Comment Form</title>
+<h1>Create A Comment</h1>
+{% from "_field.html" import render_field %}
+<form method="POST" action="{{ url_for('new_comment') }}">
+  {{ form.hidden_tag() }}
+  <table>
+    {{ render_field(form.content) }}
+  </table>
+  {{ form.submit }}
+</form>
+<a href="{{ url_for('home')}}">Home</a>

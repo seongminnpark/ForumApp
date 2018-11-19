@@ -1,0 +1,13 @@
+<!doctype html>
+<title>Login Form</title>
+<h1>User Login</h1>
+{% from "_field.html" import render_field %}
+<form method="POST" action="{{ url_for('login') }}">
+  {{ form.hidden_tag() }}
+  <table>
+    {{ render_field(form.email) }}
+    {{ render_field(form.password) }}
+  </table>
+  {{ form.submit }}
+  <a href="{{ url_for('home') }}">Home</a>
+</form>

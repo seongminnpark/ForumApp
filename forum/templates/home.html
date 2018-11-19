@@ -1,0 +1,77 @@
+<div>
+      Forum:
+      <a href="{{ url_for('home') }}">Home</a>
+      {% if current_user.is_anonymous %}
+      <a href="{{ url_for('register') }}">Register</a>
+      <a href="{{ url_for('login') }}">Login</a>
+      {% else %}
+{#      <a href="{{ url_for('user', username=current_user.username) }}">Profile</a>#}
+      <a href="{{ url_for('logout') }}">Logout</a>
+      <a href="{{ url_for('new_post') }}">Post</a>
+      <a href="{{ url_for('account') }}">Account</a>
+
+      {% endif %}
+{#      {% from "_field.html" import render_field %}#}
+{#        <form method="POST" action="{{ url_for('home') }}">#}
+{#        {{ form.hidden_tag() }}#}
+{#        <table>#}
+{#           {{ render_field(form.topic) }}#}
+{#        </table>#}
+{#        {{ form.submit }}#}
+{#        </form>#}
+{##}
+{#       <div class="posts">#}
+{#           {% for post in posts %}#}
+{#            <div class="post">#}
+{#		        <div class="postuser">#}
+{#			        {{ post.uid }}#}
+{#		        </div>#}
+{#		            <div class="commentcontent">#}
+{#			            {{ post.content }}#}
+{#		            </div>#}
+{#		        <div class="commenttime">#}
+{#			{{ post.post_time }}#}
+{#		    </div>#}
+{#            <a href="/viewpost?post= + {{ post.pid }}">View</a>#}
+{##}
+{#	    </div>#}
+{#	    <br>#}
+{#       {% endfor %}#}
+{#        </div>#}
+      {% block body%}
+            <div class="toplevelinfo">
+	        Top level topics:
+            </div>
+            {% for topic in topics %}
+            <div class="topiclisting">
+                <div class="topictitle">
+                    <a href="/topic?topic={{ topic.tid }}">
+                        {{ topic.topic}}
+                    </a>
+                </div>
+            <div class="topicdesc">
+                {{ topic._description }}
+            </div>
+            </div>
+            {% endfor %}
+        {% endblock %}
+
+         <div class="posts">
+            {% for post in posts %}
+                <div class="post">
+		            <div class="postuser">
+			            {{ post.user.username }}
+		            </div>
+                    <a href="/viewpost?post={{ post.pid }}">{{ post.title }}</a>
+		            <div class="postcontent">
+			            {{ post.content }}
+		            </div>
+		            <div class="posttime">
+			        {{ post.post_time }}
+		        </div>
+	    </div>
+	    <br>
+       {% endfor %}
+        </div>
+
+</div>

@@ -1,0 +1,14 @@
+<!doctype html>
+<title>Post Form</title>
+<h1>Create A Post</h1>
+{% from "_field.html" import render_field %}
+<form method="POST" action="{{ url_for('new_post') }}">
+  {{ form.hidden_tag() }}
+  <table>
+    {{ render_field(form.title) }}
+    {{ render_field(form.content) }}
+    {{ render_field(form.topic) }}
+  </table>
+  {{ form.submit }}
+</form>
+<a href="{{ url_for('home') }}">Home</a>

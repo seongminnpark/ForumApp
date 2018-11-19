@@ -1,0 +1,58 @@
+<div class="media-body">
+      <div class="article-metadata">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a class="mr-2" href="#">{{ current_user.username }}</a>
+        <small class="text-muted">{{ post.post_time.strftime('%Y-%m-%d') }}</small>
+{#        {% if post.uid == current_user.uid %}#}
+{#          <div>#}
+{#            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_post', pid=pid) }}">Update</a>#}
+{#            <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>#}
+{#          </div>#}
+{#        {% endif %}#}
+      </div>
+      <h2 class="article-title">{{ post.title }}</h2>
+      <a href="/like?post= + {{ post.pid }}">like</a>
+      <p class="article-content">{{ post.content }}</p>
+{#      <p class="article-content">{{ post.likes }}</p>#}
+
+      {%if post.likes%}
+       <div class="likes">
+           {% for like in post.likes %}
+            <div class="like">
+		        <div class="likeuser">
+			        {{ like.uid }}
+		        </div>
+		    </div>
+            {% endfor %}
+        </div>
+      {% endif %}
+
+
+      {%if comments%}
+       <div class="comments">
+           {% for comment in comments %}
+            <div class="comment">
+		        <div class="commentuser">
+			        {{ comment.uid }}
+		        </div>
+		            <div class="commentcontent">
+			            {{ comment.content }}
+		            </div>
+		        <div class="commenttime">
+			{{ comment.post_time }}
+		    </div>
+{#            <a href="{{ url_for('reply') }}">Reply</a>#}
+	    </div>
+	    <br>
+       {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="addcomment" id="addcomment">
+          <form action="/new_comment?post={{ post.pid }}" method="POST">
+		  <textarea class="inputbox varwidth" rows="6" name="content"></textarea><br>
+		  <input class="inputbox" style="margin-bottom: 1%;" type="submit" value="Comment">
+	</form>
+</div>
+       </div>
+

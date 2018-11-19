@@ -1,0 +1,32 @@
+<!doctype html>
+<title>Account Form</title>
+<h1>User Account</h1>
+{% from "_field.html" import render_field %}
+<form method="POST" action="{{ url_for('account') }}">
+  {{ form.hidden_tag() }}
+  <table>
+    {{ render_field(form.username) }}
+    {{ render_field(form.email) }}
+    {{ render_field(form.password) }}
+    {{ render_field(form.confirm_password) }}
+  </table>
+  {{ form.submit }}
+</form>
+<a href="{{ url_for('home') }}">Home</a>
+
+    <div class="posts">
+           {% for post in current_user.posts %}
+            <div class="post">
+		        <div class="postuser">
+			        {{ post.uid }}
+		        </div>
+		            <div class="commentcontent">
+			            {{ post.content }}
+		            </div>
+		        <div class="commenttime">
+			{{ post.post_time }}
+		    </div>
+	    </div>
+	    <br>
+       {% endfor %}
+        </div>

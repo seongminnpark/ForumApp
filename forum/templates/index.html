@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forum</title>
+</head>
+<body>
+<div>
+      {% if current_user.is_anonymous %}
+      <a href="{{ url_for('register') }}">Register</a>
+      <a href="{{ url_for('login') }}">Login</a>
+      {% else %}
+{#      <a href="{{ url_for('user', username=current_user.username) }}">Profile</a>#}
+      <a href="{{ url_for('logout') }}">Logout</a>
+      {% endif %}
+    </div>
+</body>
+</html>
+
