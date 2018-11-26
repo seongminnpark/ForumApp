@@ -15,8 +15,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 # api = Api(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://root:chen62575858@localhost/test1"
-app.config['SECRET_KEY'] = '123456'
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://seongmin:12345@localhost/test1"
+app.config['SECRET_KEY'] = '12345'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
