@@ -12,7 +12,7 @@ from flask import render_template, request, redirect, url_for, flash
 # from flask_login import login_required, current_user, login_user, logout_user
 # from .form import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, CommentForm, ViewTopicForm
 from forum import app, db
-from .model import Topic, User, Category, Post, Comment, Like, Ban, Report
+from .model import User, Category, Post, Comment, Likes, Ban, Report
 from flask import jsonify
 
 
@@ -22,11 +22,37 @@ def index():
     return render_template('index.html', title='index')
 
 
-@app.route('/api/test')
+@app.route('/api/posts', methods=['GET'])
 def test():
-    d = {}
-    d["ok"] = True
-    return jsonify(d)
+    liked = request.args["liked"] if "liked" in request.args else None
+    categoryId = request.args["categoryId"] if "categoryId" in request.args else None
+    token = request.args["token"] if "token" in request.args else None
+
+    # Query post.
+    posts = (db.session.query(User,Post,Likes,Category)
+                .filter(Likes.user_id == User.user_id)
+                .filter(Likes.post_id == Post.post_id)
+                .filter(Post.category_id == Category.category_id))
+
+    # Filter liked posts.
+    if liked:
+        posts = posts.filter()
+
+    # Construct post.
+    if categoryId:
+        posts = posts.filter(Category.category_id == categoryId)
+    
+    posts = posts.all()
+
+    # Construct response.
+    responseData = {
+        "posts": posts
+    }
+    responseJSON = {
+        "ok": True,
+        "data": responseData
+    }
+    return jsonify(responseJSON)
 
 # @app.route('/home')
 # def home():

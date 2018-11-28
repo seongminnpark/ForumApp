@@ -28,13 +28,13 @@ class User(db.Model):
     email = db.Column(db.String(20))
     password_hash = db.Column(db.String(20))
     token = db.Column(db.String(20))
-    isAdmin = db.Column(db.Integer)
+    is_admin = db.Column(db.Integer)
 
-    def __init__(self, email, password_hash, token, isAdmin):
+    def __init__(self, email, password_hash, token, is_admin):
         self.email = email
         self.password_hash = password_hash
         self.token = token
-        self.isAdmin = isAdmin
+        self.is_admin = is_admin
 
     @classmethod
     def all_users(self):
@@ -125,9 +125,9 @@ class Comment(db.Model):
 
 
 
-###Like
-class Like(db.Model):
-    __tablename__ = 'like'
+###Likes
+class Likes(db.Model):
+    __tablename__ = 'likes'
     likes_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
@@ -168,31 +168,31 @@ class Report(db.Model):
 
 
 
-###Topic
-class Topic(db.Model):
-    __tablename__ = 'topics'
-    tid = db.Column(db.Integer, primary_key=True)
-    topic = db.Column(db.String(20))
-    _description = db.Column(db.String(20))
-    parent_id = db.Column(db.String(20))
-    posts = db.relationship("Post", backref="topics")
-    path = None
+# ###Topic
+# class Topic(db.Model):
+#     __tablename__ = 'topics'
+#     tid = db.Column(db.Integer, primary_key=True)
+#     topic = db.Column(db.String(20))
+#     _description = db.Column(db.String(20))
+#     parent_id = db.Column(db.String(20))
+#     posts = db.relationship("Post", backref="topics")
+#     path = None
 
-    def __init__(self, topic, _description, parent_id):
-        self.topic = topic
-        self._description = _description
-        self.parent_id = parent_id
+#     def __init__(self, topic, _description, parent_id):
+#         self.topic = topic
+#         self._description = _description
+#         self.parent_id = parent_id
 
-    @classmethod
-    def all_topics(self):
-        return self.query.all()
+#     @classmethod
+#     def all_topics(self):
+#         return self.query.all()
 
-    @classmethod
-    def getTopicById(self, tid):
-        return self.query.get(tid)
+#     @classmethod
+#     def getTopicById(self, tid):
+#         return self.query.get(tid)
 
-    @classmethod
-    def getTopicList(self):
-        return [{t.topic} for t in Topic.all_topics()]
+#     @classmethod
+#     def getTopicList(self):
+#         return [{t.topic} for t in Topic.all_topics()]
 
 
