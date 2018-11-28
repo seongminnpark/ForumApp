@@ -10,9 +10,9 @@ from datetime import datetime
 
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user, login_user, logout_user
-from form import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, CommentForm, ViewTopicForm
+from .form import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, CommentForm, ViewTopicForm
 from forum import app, db
-from model import Topic, User, Post, Comment, Like
+from .model import Topic, User, Post, Comment, Like
 
 
 # Function
