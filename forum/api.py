@@ -23,10 +23,47 @@ def index():
 
 
 @app.route('/api/posts', methods=['GET'])
-def test():
-    liked = request.args["liked"] if "liked" in request.args else None
-    categoryId = request.args["categoryId"] if "categoryId" in request.args else None
-    token = request.args["token"] if "token" in request.args else None
+def posts():
+    liked = request.args.get("liked")
+    categoryId = request.args.get("categoryId")
+    token = request.args.get("token")
+
+    # Query post.
+    posts = (db.session.query(User,Post,Likes,Category)
+                .filter(Likes.user_id == User.user_id)
+                .filter(Likes.post_id == Post.post_id)
+                .filter(Post.category_id == Category.category_id))
+
+    # Filter liked posts.
+    if liked:
+        posts = posts.filter()
+
+    # Construct post.
+    if categoryId:
+        posts = posts.filter(Category.category_id == categoryId)
+    
+    posts = posts.all()
+
+    # Construct response.
+    responseData = {
+        "posts": posts
+    }
+    responseJSON = {
+        "ok": True,
+        "data": responseData
+    }
+    return jsonify(responseJSON)
+
+@app.route('/api/post', methods=['GET', 'POST'])
+def post():
+
+    if request.method == 'POST':
+        print(request.form.get("boo"))
+        print(request.form.get("bood"))
+
+    liked = request.args.get("liked")
+    categoryId = request.args.get("categoryId")
+    token = request.args.get("token")
 
     # Query post.
     posts = (db.session.query(User,Post,Likes,Category)
