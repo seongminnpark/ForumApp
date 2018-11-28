@@ -58,8 +58,7 @@ def posts():
 def post():
 
     if request.method == 'POST':
-        print(request.form.get("boo"))
-        print(request.form.get("bood"))
+        pass
 
     liked = request.args.get("liked")
     categoryId = request.args.get("categoryId")
@@ -84,6 +83,36 @@ def post():
     # Construct response.
     responseData = {
         "posts": posts
+    }
+    responseJSON = {
+        "ok": True,
+        "data": responseData
+    }
+    return jsonify(responseJSON)
+
+@app.route('/api/user', methods=['GET', 'POST'])
+def user():
+
+    if request.method == 'POST':
+        pass
+
+ 
+    if request.method == 'GET':
+        pass
+    
+    token = request.args.get("token")
+
+    # Query post.
+    profile = (db.session.query(User)
+                .filter(User.token == token))
+    
+    profile = profile.first()
+
+    # Construct response.
+    responseData = {
+        "profile": {
+            "email": profile.email
+        }
     }
     responseJSON = {
         "ok": True,
