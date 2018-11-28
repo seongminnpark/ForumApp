@@ -8,24 +8,25 @@ create table IF NOT EXISTS `user` (
     email varchar(255) NOT NULL unique,
     password_hash varchar(255) NOT NULL,
     token varchar(255) NOT NULL,
+    is_admin int(1) NOT NULL,
     primary key (user_id)
 );
     
-drop table if exists `user_role`;
-create table IF NOT EXISTS `user_role` (
-	role_id int(10) NOT NULL AUTO_INCREMENT,
-    role_name varchar(255) NOT NULL unique,
-    primary key (role_id)
-);
+-- drop table if exists `user_role`;
+-- create table IF NOT EXISTS `user_role` (
+-- 	role_id int(10) NOT NULL AUTO_INCREMENT,
+--     role_name varchar(255) NOT NULL unique,
+--     primary key (role_id)
+-- );
 
-drop table if exists `user_is_role`;
-create table IF NOT EXISTS `user_is_role` (
-    user_id int(10) NOT NULL unique,
-    role_id int(10) NOT NULL,
-    primary key (user_id),
-    foreign key (user_id) references `user`(user_id),
-    foreign key (role_id) references `user_role`(role_id)
-);
+-- drop table if exists `user_is_role`;
+-- create table IF NOT EXISTS `user_is_role` (
+--     user_id int(10) NOT NULL unique,
+--     role_id int(10) NOT NULL,
+--     primary key (user_id),
+--     foreign key (user_id) references `user`(user_id),
+--     foreign key (role_id) references `user_role`(role_id)
+-- );
 
 drop table if exists `category`;
 create table IF NOT EXISTS `category` (
@@ -40,7 +41,7 @@ create table IF NOT EXISTS `post` (
     poster_id int(10) NOT NULL,
     category_id int(10) NOT NULL,
     title  varchar(255) NOT NULL,
-    content varchar(255) NOT NULL,
+    content text NOT NULL,
     post_time datetime default now(),
     primary key (post_id),
     foreign key (poster_id) references `user`(user_id),
@@ -52,7 +53,7 @@ create table IF NOT EXISTS `comment` (
 	comment_id int(10) NOT NULL AUTO_INCREMENT, 
     commenter_id int(10) NOT NULL,
     post_id int(10) NOT NULL,
-    content varchar(255) NOT NULL,
+    content text NOT NULL,
     post_time datetime NOT NULL,
     primary key (comment_id),
     foreign key (commenter_id) references `user`(user_id),
@@ -85,14 +86,12 @@ create table IF NOT EXISTS `ban` (
 drop table if exists `report`;
 create table IF NOT EXISTS `report` (
 	report_id int(10) NOT NULL AUTO_INCREMENT,
-	reporter int(10) NOT NULL,
-    reported int (10) NOT NULL,
+	reporter_id int(10) NOT NULL,
     post_id int(10) ,
 	reoport_time datetime NOT NULL,
-    comments TEXT,
+    comment TEXT,
     primary key (report_id),
-    foreign key (reporter) references `user`(user_id),
-    foreign key (reported) references `user`(user_id),
+    foreign key (reporter_id) references `user`(user_id),
     foreign key (post_id) references `post`(post_id) ON DELETE CASCADE
 );
  
