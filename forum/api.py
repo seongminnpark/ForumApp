@@ -21,64 +21,33 @@ from flask import jsonify
 def index():
     return render_template('index.html', title='index')
 
-
 @app.route('/api/posts', methods=['GET'])
 def posts():
-    liked = request.args.get("liked")
-    categoryId = request.args.get("categoryId")
-    token = request.args.get("token")
-
-    # Query post.
-    posts = (db.session.query(User,Post,Likes,Category)
-                .filter(Likes.user_id == User.user_id)
-                .filter(Likes.post_id == Post.post_id)
-                .filter(Post.category_id == Category.category_id))
-
-    # Filter liked posts.
-    if liked:
-        posts = posts.filter()
-
-    # Construct post.
-    if categoryId:
-        posts = posts.filter(Category.category_id == categoryId)
-    
-    posts = posts.all()
-
-    # Construct response.
-    responseData = {
-        "posts": posts
-    }
-    responseJSON = {
-        "ok": True,
-        "data": responseData
-    }
-    return jsonify(responseJSON)
-
-@app.route('/api/post', methods=['GET', 'POST'])
-def post():
 
     if request.method == 'POST':
         pass
 
-    liked = request.args.get("liked")
-    categoryId = request.args.get("categoryId")
-    token = request.args.get("token")
+    filterLiked = request.args.get("liked")
+    filterCategoryId = request.args.get("categoryId")
+    token = request.headers.get("token")
 
-    # Query post.
-    posts = (db.session.query(User,Post,Likes,Category)
-                .filter(Likes.user_id == User.user_id)
-                .filter(Likes.post_id == Post.post_id)
-                .filter(Post.category_id == Category.category_id))
+    # Query posts.
+    postsQuery = (db.session.query(User,Post,Likes,Category)
+            .filter(Post.category_id == Category.category_id)
+            .filter(Post.poster_id == User.user_id)
+            .filter(Likes.post_id == Post.post_id)
+            .filter(Likes.user_id == User.user_id))
 
     # Filter liked posts.
-    if liked:
-        posts = posts.filter()
+    if filterLiked:
+        user = User.getUserByToken(token)
+        postsQuery = postsQuery.filter(Likes.user_id == user.user_id)
 
-    # Construct post.
-    if categoryId:
-        posts = posts.filter(Category.category_id == categoryId)
-    
-    posts = posts.all()
+    # Filter by category id.
+    if filterCategoryId:
+        postsQuery = postsQuery.filter(Category.category_id == filterCategoryId)
+
+    posts = postsQuery.all()
 
     # Construct response.
     responseData = {
@@ -93,14 +62,14 @@ def post():
 @app.route('/api/user', methods=['GET', 'POST'])
 def user():
 
-    token = request.args.get("token")
+    token = request.headers.get("token")
 
     if request.method == 'POST':
         nameRaw = request.form.get('name')
         emailRaw = request.form.get('email')
         passwordRaw = request.form.get('password')
         avatarIdRaw = request.form.get('avatarId')
-        token = emailRaw
+        token = nameRaw
         newUser = User(nameRaw, emailRaw, passwordRaw, token, 0, avatarIdRaw)
         db.session.add(newUser)
         db.session.commit()
@@ -142,6 +111,109 @@ def getLikesReceived(user_id):
                 .filter(Post.poster_id == User.user_id)
                 .filter(Likes.post_id == Post.post_id)).all()
     return len(query)
+
+@app.route('/api/post', methods=['GET', 'POST'])
+def post():
+
+    filterLiked = request.args.get("liked")
+    filterCategoryId = request.args.get("categoryId")
+    token = request.headers.get("token")
+
+    if request.method == 'POST':
+        poster = User.getUserByToken(token)
+
+        title = request.form.get('title')
+        content = request.form.get('content')
+        categoryId = request.form.get('categoryId')
+        newPost = Post(title, content, poster.user_id, categoryId)
+        db.session.add(newPost)
+        db.session.commit()
+
+        # Query posts.
+        postsQuery = (db.session.query(User,Post,Likes,Category)
+                .filter(Post.category_id == Category.category_id)
+                .filter(Post.poster_id == User.user_id)
+                .filter(Likes.post_id == Post.post_id)
+                .filter(Likes.user_id == User.user_id))
+
+        # Filter liked posts.
+        if filterLiked:
+            postsQuery = postsQuery.filter(Likes.user_id == poster.user_id)
+
+        # Filter by category id.
+        if filterCategoryId:
+            postsQuery = postsQuery.filter(Category.category_id == filterCategoryId)
+
+        postsQuery = postsQuery.all()
+
+        posts = []
+
+        for post in postsQuery: 
+            postObject = {}
+            poster = User.getUserById(post.poster_id)
+            
+            postObject["id"] = post.post_id
+            postObject["title"] = post.title,
+            postObject["date"] = post.post_time,
+            postObject["author"] = poster.name,
+            postObject["content"] = post.content,
+            postObject["author_avatar_id"] = poster.avatar_id,
+            postObject["category_id"] = post.category_id,
+            postObject["likes"] = Likes.getNumberOfLikesOnPost(post.post_id),
+
+            commentsQuery = Comment.getComments(post.post_id)
+            commentAvatars = []
+            for comment in commentsQuery:
+                commenter = User.getUserById(comment.commenter_id)
+                commentAvatars.append(commenter.avatar_id)
+
+            postObject["comments"] = len(commentsQuery)
+            postObject["commenter_avatar_ids"] = commentAvatars
+
+            posts.append(postObject)
+
+        # Construct response.
+        responseData = {
+            "posts": posts
+        }
+
+    if request.method == 'GET':
+        postId = request.args.get("postId")
+        post = Post.getPostById(postId)
+
+        postObject = {}
+        poster = User.getUserById(post.post_id)
+        
+        postObject["title"] = post.title,
+        postObject["date"] = post.post_time,
+        postObject["author"] = poster.name,
+        postObject["content"] = post.content,
+        postObject["author_avatar_id"] = poster.avatar_id,
+
+        commentsQuery = Comment.getComments(post.post_id)
+        comments = []
+        for comment in comments:
+            commentObject = {}
+            commenter = User.getUserById(comment.commenter_id)
+
+            commentObject["name"] = commenter.name
+            commentObject["avatarId"] = commenter.avatar_id
+            commentObject["content"] = comment.content
+            commentObject["date"] = comment.date
+
+            comments.append(commentObject)
+        
+        postObject["comments"] = comments
+
+        responseData = {
+            "post": post
+        }
+
+    responseJSON = {
+        "ok": True,
+        "data": responseData
+    }
+    return jsonify(responseJSON)
 
 # @app.route('/home')
 # def home():

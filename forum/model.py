@@ -42,7 +42,7 @@ class User(db.Model):
         self.avatar_id = avatar_id
 
     @classmethod
-    def all_users(self):
+    def getAll(self):
         return self.query.all()
 
     @classmethod
@@ -103,30 +103,35 @@ class Post(db.Model):
     poster_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'), nullable=False)
 
-    def __init__(self, post_id, title, content, post_time, poster_id, category_id):
-        self.post_id = post_id
+    def __init__(self, title, content, poster_id, category_id):
         self.title = title
         self.content = content
-        self.post_time = post_time
         self.poster_id = poster_id
         self.category_id = category_id
 
     @classmethod
     def getPostsByUser(self, user_id):
         return self.query.filter(Post.poster_id == user_id).all()
+    
+    @classmethod
+    def getPostById(self, post_id):
+        return self.query.filter(Post.post_id == post_id).first()
+    
+    @classmethod
+    def getAll(self):
+        return self.query.all()
 
 ###Comment
 class Comment(db.Model):
-    __tablename__ = 'comments'
+    __tablename__ = 'comment'
     comment_id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
     post_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     commenter_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
 
-    def __init__(self, content, post_time, commenter_id, post_id):
+    def __init__(self, content, commenter_id, post_id):
         self.content = content
-        self.post_time = post_time
         self.commenter_id = commenter_id
         self.post_id = post_id
 
@@ -135,6 +140,14 @@ class Comment(db.Model):
             return text_type(self.cid)
         except AttributeError:
             raise NotImplementedError('No `id` attribute - override `get_id`')
+
+    @classmethod
+    def getComments(self, post_id):
+        return self.query.filter(Comment.post_id == post_id).all()
+
+    @classmethod
+    def getCommentCount(self, post_id):
+        return self.query.filter(Comment.post_id == post_id).count()
 
 
 
@@ -154,6 +167,10 @@ class Likes(db.Model):
     @classmethod
     def getLikedPostsByUser(self, user_id):
         return self.query.filter(Likes.user_id == user_id).all()
+    
+    @classmethod
+    def getNumberOfLikesOnPost(self, post_id):
+        return self.query.filter(Likes.post_id == post_id).count()
 
 ###Ban
 class Ban(db.Model):
