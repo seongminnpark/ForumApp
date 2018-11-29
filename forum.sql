@@ -5,10 +5,13 @@ use test1;
 drop table if exists `user`;
 create table IF NOT EXISTS `user` (
 	user_id int(10) NOT NULL AUTO_INCREMENT,
+    name varchar(255) NOT NULL,
     email varchar(255) NOT NULL unique,
     password_hash varchar(255) NOT NULL,
     token varchar(255) NOT NULL,
     is_admin int(1) NOT NULL,
+    avatar_id int(10) NOT NULL,
+    date_joined datetime default now(),
     primary key (user_id)
 );
     
@@ -78,6 +81,7 @@ create table IF NOT EXISTS `ban` (
 	banned_id int(10) NOT NULL unique,
     banner_id int(10) NOT NULL,
     ban_time datetime NOT NULL,
+    active int(1) default 1 NOT NULL,
     primary key (ban_id),
     foreign key (banned_id) references `user`(user_id),
 	foreign key (banner_id) references `user`(user_id)

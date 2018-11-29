@@ -25,24 +25,33 @@ from forum import db
 class User(db.Model):
     __tablename__ = 'user'
     user_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20))
     email = db.Column(db.String(20))
     password_hash = db.Column(db.String(20))
     token = db.Column(db.String(20))
     is_admin = db.Column(db.Integer)
+    date_joined = db.Column(db.DateTime, default=datetime.utcnow())
+    avatar_id = db.Column(db.Integer)
 
-    def __init__(self, email, password_hash, token, is_admin):
+    def __init__(self, name, email, password_hash, token, is_admin, avatar_id):
+        self.name = name
         self.email = email
         self.password_hash = password_hash
         self.token = token
         self.is_admin = is_admin
+        self.avatar_id = avatar_id
 
     @classmethod
     def all_users(self):
         return self.query.all()
 
     @classmethod
-    def getUserById(self, uid):
-        return self.query.get(uid)
+    def getUserById(self, user_id):
+        return self.query.get(user_id)
+    
+    @classmethod
+    def getUserByToken(self, token):
+        return self.query.filter(User.token == token).first()
 
     @classmethod
     def getEmail(self):
@@ -102,6 +111,10 @@ class Post(db.Model):
         self.poster_id = poster_id
         self.category_id = category_id
 
+    @classmethod
+    def getPostsByUser(self, user_id):
+        return self.query.filter(Post.poster_id == user_id).all()
+
 ###Comment
 class Comment(db.Model):
     __tablename__ = 'comments'
@@ -137,6 +150,10 @@ class Likes(db.Model):
         self.uid = user_id
         self.pid = post_id
         self.post_time = like_time
+    
+    @classmethod
+    def getLikedPostsByUser(self, user_id):
+        return self.query.filter(Likes.user_id == user_id).all()
 
 ###Ban
 class Ban(db.Model):
@@ -145,11 +162,21 @@ class Ban(db.Model):
     banned_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     banner_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     ban_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    active = db.Column(db.Integer, default=1)
 
-    def __init__(self, banned_id, banner_id, ban_time):
+    def __init__(self, banned_id, banner_id, ban_time, active):
         self.banned_id = banned_id
         self.banner_id = banner_id
         self.ban_time = ban_time
+        self.active = active
+    
+    @classmethod
+    def getBannedStatus(self, user_id):
+        query = self.query.filter(Ban.banned_id == user_id).first()
+        print(query)
+        print(None and None)
+        if query != None and not query.active: return 1
+        else: return 0
 
 ###Report
 class Report(db.Model):
