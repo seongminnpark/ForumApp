@@ -75,29 +75,50 @@ create table IF NOT EXISTS `likes` (
     foreign key (user_id) references user(user_id)
 );
 
-drop table if exists `ban`;
-create table IF NOT EXISTS `ban` (
-    ban_id int(10) NOT NULL AUTO_INCREMENT, 
-	banned_id int(10) NOT NULL unique,
-    banner_id int(10) NOT NULL,
-    ban_time datetime NOT NULL,
-    active int(1) default 1 NOT NULL,
-    primary key (ban_id),
-    foreign key (banned_id) references `user`(user_id),
-	foreign key (banner_id) references `user`(user_id)
-);
-
 drop table if exists `report`;
 create table IF NOT EXISTS `report` (
 	report_id int(10) NOT NULL AUTO_INCREMENT,
 	reporter_id int(10) NOT NULL,
     post_id int(10) ,
-	reoport_time datetime NOT NULL,
-    comment TEXT,
+	report_time datetime NOT NULL,
+    content TEXT,
+    active int(1) default 1 NOT NULL,
     primary key (report_id),
     foreign key (reporter_id) references `user`(user_id),
     foreign key (post_id) references `post`(post_id) ON DELETE CASCADE
 );
+
+drop table if exists `ban`;
+create table IF NOT EXISTS `ban` (
+    ban_id int(10) NOT NULL AUTO_INCREMENT, 
+	banned_id int(10) NOT NULL unique,
+    banner_id int(10) NOT NULL,
+    report_id int(10) NOT NULL,
+    ban_time datetime NOT NULL,
+    active int(1) default 1 NOT NULL,
+    primary key (ban_id),
+    foreign key (banned_id) references `user`(user_id),
+	foreign key (banner_id) references `user`(user_id),
+    foreign key (report_id) references `report`(report_id)
+);
+
+drop table if exists `report_reason`;
+create table IF NOT EXISTS `report_reason` (
+    reason_id int(10) NOT NULL AUTO_INCREMENT,
+    description varchar(255) NOT NULL unique,
+    primary key (reason_id)
+);
+
+drop table if exists `report_has_reason`;
+create table IF NOT EXISTS `report_has_reason` (
+	report_id int(10) NOT NULL,
+    reason_id int(10) NOT NULL,
+    primary key (report_id, reason_id),
+    unique(report_id, reason_id),
+    foreign key (report_id) references `report`(report_id) ON DELETE CASCADE,
+    foreign key (reason_id) references `report_reason`(reason_id)
+);
+    
 
 INSERT INTO category (name)
 VALUES ("Announcement");
@@ -110,6 +131,15 @@ VALUES ("Question");
 
 INSERT INTO category ( name)
 VALUES ("Guide");
+
+INSERT INTO report_reason (description)
+VALUES ("Vulgar");
+
+INSERT INTO report_reason (description)
+VALUES ("Advertising");
+
+INSERT INTO report_reason ( description)
+VALUES ("Irrelevant");
 
 INSERT INTO user (user_id, name, email, password_hash, token, is_admin, avatar_id)
 VALUES (0, 'John Ham', 'admin@admin.com', '12345', '12345', 1, 0);

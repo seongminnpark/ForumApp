@@ -186,22 +186,26 @@ class Ban(db.Model):
     ban_id = db.Column(db.Integer, primary_key=True)
     banned_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     banner_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
+    report_id = db.Column(db.Integer, db.ForeignKey('report.report_id'), nullable=False)
     ban_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     active = db.Column(db.Integer, default=1)
 
-    def __init__(self, banned_id, banner_id, ban_time, active):
+    def __init__(self, banned_id, banner_id, report_id, ban_time, active):
         self.banned_id = banned_id
         self.banner_id = banner_id
+        self.report_id = report_id
         self.ban_time = ban_time
         self.active = active
     
     @classmethod
     def getBannedStatus(self, user_id):
         query = self.query.filter(Ban.banned_id == user_id).first()
-        print(query)
-        print(None and None)
         if query != None and not query.active: return 1
         else: return 0
+    
+    @classmethod
+    def getAll(self):
+        return self.query.filter(Ban.active).all()
 
 ###Report
 class Report(db.Model):
@@ -211,13 +215,48 @@ class Report(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
     report_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     content = db.Column(db.Text, nullable=False)
+    active = db.Column(db.Integer, default=1)
 
-    def __init__(self, reporter_id, post_id, report_time, content):
+    def __init__(self, reporter_id, post_id, report_time, content, active):
         self.reporter_id = reporter_id
         self.post_id = post_id
         self.report_time = report_time
         self.content = content
+        self.active = active
+    
+    @classmethod
+    def getAll(self):
+        return self.query.filter(Report.active).all()
 
+###ReportReason
+class ReportReason(db.Model):
+    __tablename__ = 'report_reason'
+    reason_id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.Text, nullable=False)
+
+    def __init__(self, description):
+        self.description = description
+    
+    @classmethod
+    def getAll(self):
+        return self.query.all()
+
+###ReportHasReason
+class ReportHasReason(db.Model):
+    __tablename__ = 'report_has_reason'
+    report_id = db.Column(db.Integer, db.ForeignKey('report.report_id'), nullable=False, primary_key=True)
+    reason_id = db.Column(db.Integer, db.ForeignKey('report_reason.reason_id'), nullable=False, primary_key=True)
+
+    def __init__(self, description):
+        self.description = description
+    
+    @classmethod
+    def getReasonsForReport(self, report_id):
+        query = self.query.filter(ReportHasReason.report_id == report_id).all()
+        reasons = []
+        for reportReason in query:
+            reasons.append(reportReason.reason_id)
+        return reasons
 
 
 # ###Topic

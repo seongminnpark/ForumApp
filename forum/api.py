@@ -12,7 +12,7 @@ from flask import render_template, request, redirect, url_for, flash
 # from flask_login import login_required, current_user, login_user, logout_user
 # from .form import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, CommentForm, ViewTopicForm
 from forum import app, db
-from .model import User, Category, Post, Comment, Likes, Ban, Report
+from .model import User, Category, Post, Comment, Likes, Ban, Report, ReportReason, ReportHasReason
 from flask import jsonify
 
 
@@ -299,6 +299,56 @@ def constructPostTile(post):
     postObject["comments"] = len(commentsQuery)
     postObject["commenter_avatar_ids"] = commentAvatars
     return postObject
+
+@app.route('/api/reports', methods=['GET'])
+def reports():
+
+    token = request.headers.get("token")
+
+    user = User.getUserByToken(token)
+
+    if not user or not user.is_admin:
+        returnError(400, "Only admins can view reports.")
+
+    # Query reports.
+    reportsQuery = Report.getAll()
+    reports = []
+    for report in reportsQuery:
+        reportObject = {}
+
+        reportObject["report_id"] =  report.report_id
+        reportObject["reported_name"] = User.getUserById(report.reported_id).name
+        reportObject["reporter_name"] = User.getUserById(Post.getPostById(report.post_id).poster_id).name
+        reportObject["report_date"] =  report.report_time
+        reportObject["report_reason_ids"] = ReportHasReason.getReasonsForReport(report.report_id)
+        reportObject["reported_post_id"] = report.post_id
+
+        reports.append(reportObject)
+
+    # Query bans.
+    bansQuery = Ban.getAll()
+    bans = []
+    for ban in bansQuery:
+        banObject = {}
+
+        banObject["ban_id"] = 0,
+        banObject["banned_name"] = User.getUserById(ban.banned_id).name
+        banObject["banned_by"] = User.getUserById(ban.banner_id).name
+        banObject["banned_date"] = ban.ban_time
+        banObject["banned_reason_ids"] = ReportHasReason.getReasonsForReport(ban.report_id)
+
+        bans.append(banObject)
+
+    responseData = {
+        "reports": reports,
+        "bans": bans
+    }
+
+    responseJSON = {
+        "ok": True,
+        "data": responseData
+    }
+    return jsonify(responseJSON)
 
 def returnError(statusCode, message):
     return jsonify({"message": message}), statusCode 
