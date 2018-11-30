@@ -169,7 +169,7 @@ class Likes(db.Model):
         return self.query.filter(Likes.user_id == user_id).all()
     
     @classmethod
-    def getNumberOfLikesOnPost(self, post_id):
+    def getPostLikeCount(self, post_id):
         return self.query.filter(Likes.post_id == post_id).count()
     
     @classmethod

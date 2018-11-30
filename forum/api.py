@@ -36,31 +36,45 @@ def user():
         db.session.add(newUser)
         db.session.commit()
 
-    if request.method == 'GET':
-        pass
-
     # Query profile.
     user = User.getUserByToken(token)
-    # profile = (db.session.query(User)
-    #             .filter(User.token == token))
-    
-    # profile = profile.first()
-    posts = Post.getPostsByUser(user.user_id)
-    likedPosts = Likes.getLikedPostsByUser(user.user_id)
+
+    if request.method == 'GET':
+        if user == None:
+            return returnError(404, "Invalid user token supplied while fetching profile.")
+
+    postsQuery = Post.getPostsByUser(user.user_id)
+    likedPostsQuery = Likes.getLikedPostsByUser(user.user_id)
+
+    # Construct profile data.
+    profile = {}
+    profile["name"] = user.name
+    profile["dateJoined"] = user.date_joined
+    profile["avatarId"] = user.avatar_id
+    profile["likesReceived"] = getLikesReceived(user.user_id)
+    profile["statusId"] = Ban.getBannedStatus(user.user_id) 
+    profile["email"] = user.email
+
+    likedPosts = []
+    for likedPost in likedPostsQuery:
+        likedPosts.append(likedPost.post_id)
+    profile["likedPosts"] = likedPosts 
+
+    posts = []
+    for post in postsQuery:
+        posts.append({
+            "id": post.post_id,
+            "title": post.title,
+            "date": post.post_time,
+            "likes": Likes.getPostLikeCount(post.post_id),
+            "commentCount": Comment.getCommentCount(post.post_id)
+        })
+    profile["posts"] = posts
 
     # Construct response.
     responseData = {
         "token": user.token,
-        "profile": {
-            "name": user.name, 
-            "dateJoined": user.date_joined, 
-            "avatarId": user.avatar_id,
-            "likesReceived": getLikesReceived(user.user_id), 
-            "statusId": Ban.getBannedStatus(user.user_id), 
-            "email": user.email, 
-            "likedPosts": likedPosts, 
-            "posts": posts
-        }
+        "profile": profile
     }
     responseJSON = {
         "ok": True,
@@ -220,7 +234,7 @@ def constructPostTile(post):
     postObject["content"] = post.content
     postObject["author_avatar_id"] = poster.avatar_id
     postObject["category_id"] = post.category_id
-    postObject["likes"] = Likes.getNumberOfLikesOnPost(post.post_id)
+    postObject["likes"] = Likes.getPostLikeCount(post.post_id)
 
     commentsQuery = Comment.getComments(post.post_id)
     commentAvatars = []
@@ -231,6 +245,9 @@ def constructPostTile(post):
     postObject["comments"] = len(commentsQuery)
     postObject["commenter_avatar_ids"] = commentAvatars
     return postObject
+
+def returnError(statusCode, message):
+    return jsonify({"message": message}), statusCode 
 
 # @app.route('/home')
 # def home():
