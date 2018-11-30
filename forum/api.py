@@ -84,24 +84,31 @@ def posts():
     filterCategoryId = request.args.get("categoryId")
     token = request.headers.get("token")
 
-    # Query posts.
-    postsQuery = (db.session.query(User,Post,Likes,Category)
-            .filter(Post.category_id == Category.category_id)
-            .filter(Post.poster_id == User.user_id)
-            .filter(Likes.post_id == Post.post_id)
-            .filter(Likes.user_id == User.user_id))
-
-    # Filter liked posts.
-    if filterLiked:
+    if token:
         user = User.getUserByToken(token)
-        postsQuery = postsQuery.filter(Likes.user_id == user.user_id)
 
-    # Filter by category id.
-    if filterCategoryId:
-        postsQuery = postsQuery.filter(Category.category_id == filterCategoryId)
+    # Query posts.
+    # postsQuery = (db.session.query(User,Post,Likes,Category)
+    #         .filter(Post.category_id == Category.category_id)
+    #         .filter(Post.poster_id == User.user_id)
+    #         .filter(Likes.post_id == Post.post_id)
+    #         .filter(Likes.user_id == User.user_id))
+    postsQuery = Post.getAll()
 
-    posts = postsQuery.all()
+    posts = []
+    for post in postsQuery:
 
+        # Filter liked posts.
+        if (token and filterLiked and Likes.userLikedPost(user.user_id, post.post_id)):
+                continue
+
+        # Filter by category id.
+        if (filterCategoryId and post.category_id != filterCategoryId):
+                continue
+
+        postObject = constructPostTile(post)
+        posts.append(postObject)
+        
     # Construct response.
     responseData = {
         "posts": posts
@@ -150,32 +157,13 @@ def post():
         posts = []
         
         for post in postsQuery: 
-            if (filterLiked and Likes.userLikedPost(poster.user_id, post.post_id)):
+            if (token and  filterLiked and Likes.userLikedPost(poster.user_id, post.post_id)):
                 continue
 
             if (filterCategoryId and post.category_id != filterCategoryId):
                 continue
 
-            postObject = {}
-            poster = User.getUserById(post.poster_id)
-            
-            postObject["id"] = post.post_id
-            postObject["title"] = post.title
-            postObject["date"] = post.post_time
-            postObject["author"] = poster.name
-            postObject["content"] = post.content
-            postObject["author_avatar_id"] = poster.avatar_id
-            postObject["category_id"] = post.category_id
-            postObject["likes"] = Likes.getNumberOfLikesOnPost(post.post_id)
-
-            commentsQuery = Comment.getComments(post.post_id)
-            commentAvatars = []
-            for comment in commentsQuery:
-                commenter = User.getUserById(comment.commenter_id)
-                commentAvatars.append(commenter.avatar_id)
-
-            postObject["comments"] = len(commentsQuery)
-            postObject["commenter_avatar_ids"] = commentAvatars
+            postObject = constructPostTile(post)
             posts.append(postObject)
 
         # Construct response.
@@ -220,6 +208,29 @@ def post():
         "data": responseData
     }
     return jsonify(responseJSON)
+
+def constructPostTile(post):
+    postObject = {}
+    poster = User.getUserById(post.poster_id)
+    
+    postObject["id"] = post.post_id
+    postObject["title"] = post.title
+    postObject["date"] = post.post_time
+    postObject["author"] = poster.name
+    postObject["content"] = post.content
+    postObject["author_avatar_id"] = poster.avatar_id
+    postObject["category_id"] = post.category_id
+    postObject["likes"] = Likes.getNumberOfLikesOnPost(post.post_id)
+
+    commentsQuery = Comment.getComments(post.post_id)
+    commentAvatars = []
+    for comment in commentsQuery:
+        commenter = User.getUserById(comment.commenter_id)
+        commentAvatars.append(commenter.avatar_id)
+
+    postObject["comments"] = len(commentsQuery)
+    postObject["commenter_avatar_ids"] = commentAvatars
+    return postObject
 
 # @app.route('/home')
 # def home():
