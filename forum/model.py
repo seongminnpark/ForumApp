@@ -152,12 +152,18 @@ class Comment(db.Model):
     @classmethod
     def getComments(self, post_id):
         return self.query.filter(Comment.post_id == post_id).all()
+    
+    @classmethod
+    def getCommentsByUser(self, user_id):
+        return self.query.filter(Comment.commenter_id == user_id).all()
 
     @classmethod
     def getCommentCount(self, post_id):
         return self.query.filter(Comment.post_id == post_id).count()
-
-
+    
+    @classmethod
+    def getUserCommentCount(self, user_id):
+        return self.query.filter(Comment.commenter_id == user_id).count()
 
 ###Likes
 class Likes(db.Model):

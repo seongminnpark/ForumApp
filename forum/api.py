@@ -46,6 +46,7 @@ def user():
 
     postsQuery = Post.getPostsByUser(user.user_id)
     likedPostsQuery = Likes.getLikedPostsByUser(user.user_id)
+    commentsQuery = Comment.getCommentsByUser(user.user_id)
 
     # Construct profile data.
     profile = {}
@@ -71,6 +72,16 @@ def user():
             "commentCount": Comment.getCommentCount(post.post_id)
         })
     profile["posts"] = posts
+
+    comments = []
+    for comment in commentsQuery:
+        comments.append({
+            "postId": comment.post_id,
+            "postTitle": Post.getPostById(comment.post_id).title,
+            "date": comment.post_time,
+            "content": comment.content
+        })
+    profile["comments"] = comments
 
     # Construct response.
     responseJSON = {
