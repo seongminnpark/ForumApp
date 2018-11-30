@@ -56,6 +56,7 @@ def user():
     profile["likesReceived"] = getLikesReceived(user.user_id)
     profile["statusId"] = Ban.getBannedStatus(user.user_id) 
     profile["email"] = user.email
+    profile["isAdmin"] = True if user.is_admin == 1 else False
 
     likedPosts = []
     for likedPost in likedPostsQuery:
@@ -114,6 +115,7 @@ def login():
     profile["likesReceived"] = getLikesReceived(user.user_id)
     profile["statusId"] = Ban.getBannedStatus(user.user_id) 
     profile["email"] = user.email
+    profile["isAdmin"] = True if user.is_admin == 1 else False
 
     likedPosts = []
     for likedPost in likedPostsQuery:
