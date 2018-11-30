@@ -368,7 +368,7 @@ def reports():
     for ban in bansQuery:
         banObject = {}
 
-        banObject["ban_id"] = ban_id
+        banObject["ban_id"] = ban.ban_id
         banObject["banned_name"] = User.getUserById(ban.banned_id).name
         banObject["banned_by"] = User.getUserById(ban.banner_id).name
         banObject["banned_date"] = ban.ban_time
@@ -484,7 +484,7 @@ def unban():
     for ban in bansQuery:
         banObject = {}
 
-        banObject["ban_id"] = 0,
+        banObject["ban_id"] = ban.ban_id,
         banObject["banned_name"] = User.getUserById(ban.banned_id).name
         banObject["banned_by"] = User.getUserById(ban.banner_id).name
         banObject["banned_date"] = ban.ban_time
@@ -524,6 +524,33 @@ def report():
     db.session.commit()
 
     return jsonify({}), 200
+
+@app.route('/api/like', methods=['POST'])
+def like():
+
+    token = request.headers.get("token")
+
+    user = User.getUserByToken(token)
+
+    if not user:
+        returnError(403, "Invalid user. Please log in again.")
+
+    postId = request.form.get('postId')
+
+    like = Likes.getLike(user.user_id, postId)
+    
+    if not like:
+        newLike = Likes(user.user_id, postId)
+        db.session.add(newLike)
+    else:
+        db.session.delete(like)
+    db.session.commit()
+
+    responseJSON = {
+        "likedPosts": [x.post_id for x in Likes.getLikedPostsByUser(user.user_id)]
+    }
+
+    return jsonify(responseJSON)
 
 def returnError(statusCode, message):
     return jsonify({"message": message}), statusCode 

@@ -163,10 +163,9 @@ class Likes(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
     like_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
 
-    def __init__(self, user_id, post_id, like_time):
-        self.uid = user_id
-        self.pid = post_id
-        self.post_time = like_time
+    def __init__(self, user_id, post_id):
+        self.user_id = user_id
+        self.post_id = post_id
     
     @classmethod
     def getLikedPostsByUser(self, user_id):
@@ -175,6 +174,10 @@ class Likes(db.Model):
     @classmethod
     def getPostLikeCount(self, post_id):
         return self.query.filter(Likes.post_id == post_id).count()
+    
+    @classmethod
+    def getLike(self, user_id, post_id):
+        return self.query.filter(Likes.post_id == post_id and Likes.user_id == user_id).first()
     
     @classmethod
     def userLikedPost(self, user_id, post_id):
