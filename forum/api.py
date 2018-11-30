@@ -148,7 +148,7 @@ def post():
         # postsQuery = postsQuery.all()
 
         posts = []
-        print(postsQuery[0].title)
+        
         for post in postsQuery: 
             if (filterLiked and Likes.userLikedPost(poster.user_id, post.post_id)):
                 continue
