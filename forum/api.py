@@ -82,11 +82,65 @@ def user():
     }
     return jsonify(responseJSON)
 
+@app.route('/api/login', methods=['POST'])
+def login():
+
+    emailRaw = request.form.get('email')
+    passwordRaw = request.form.get('password')
+
+    # Query profile.
+    user = User.getUserByEmail(emailRaw)
+
+    if not user or hashPassword(passwordRaw) != user.password_hash:
+        return returnError(400, "Wrong email or password.")
+
+    postsQuery = Post.getPostsByUser(user.user_id)
+    likedPostsQuery = Likes.getLikedPostsByUser(user.user_id)
+
+    # Construct profile data.
+    profile = {}
+    profile["name"] = user.name
+    profile["dateJoined"] = user.date_joined
+    profile["avatarId"] = user.avatar_id
+    profile["likesReceived"] = getLikesReceived(user.user_id)
+    profile["statusId"] = Ban.getBannedStatus(user.user_id) 
+    profile["email"] = user.email
+
+    likedPosts = []
+    for likedPost in likedPostsQuery:
+        likedPosts.append(likedPost.post_id)
+    profile["likedPosts"] = likedPosts 
+
+    posts = []
+    for post in postsQuery:
+        posts.append({
+            "id": post.post_id,
+            "title": post.title,
+            "date": post.post_time,
+            "likes": Likes.getPostLikeCount(post.post_id),
+            "commentCount": Comment.getCommentCount(post.post_id)
+        })
+    profile["posts"] = posts
+
+    # Construct response.
+    responseData = {
+        "token": user.token,
+        "profile": profile
+    }
+    responseJSON = {
+        "ok": True,
+        "data": responseData
+    }
+    return jsonify(responseJSON)
+
 def getLikesReceived(user_id):
     query = (db.session.query(User,Post,Likes)
                 .filter(Post.poster_id == User.user_id)
                 .filter(Likes.post_id == Post.post_id)).all()
     return len(query)
+
+def hashPassword(password):
+    return password
 
 @app.route('/api/posts', methods=['GET'])
 def posts():

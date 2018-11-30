@@ -112,4 +112,4 @@ INSERT INTO category ( name)
 VALUES ("Guide");
 
 INSERT INTO user (user_id, name, email, password_hash, token, is_admin, avatar_id)
-VALUES (0, 'John Ham', '3kjnk@gmail.com', '12345', '12345', 1, 0);
+VALUES (0, 'John Ham', 'admin@admin.com', '12345', '12345', 1, 0);

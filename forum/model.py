@@ -52,6 +52,10 @@ class User(db.Model):
     @classmethod
     def getUserByToken(self, token):
         return self.query.filter(User.token == token).first()
+    
+    @classmethod
+    def getUserByEmail(self, email):
+        return self.query.filter(User.email == email).first()
 
     @classmethod
     def getEmail(self):
