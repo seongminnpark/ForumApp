@@ -179,6 +179,10 @@ VALUES (2, 3, 'Close this forum', "Close it!", "2018-11-17 12:11:12");
 INSERT INTO post (poster_id, category_id, title, content, post_time)
 VALUES (2, 3, 'Close this forum', "Close it!", "2018-11-17 12:11:12");
 
+-- Add initial comments.
+INSERT INTO comment (commenter_id, post_id, content, post_time)
+VALUES (1, 1, 'Wowee', "2018-11-18 12:11:12");
+
 -- Add initial reports.
 INSERT INTO report (reporter_id, post_id, report_time, content, active)
 VALUES (2, 3, '2018-08-19 12:19:28', "Stupid post", 1);
