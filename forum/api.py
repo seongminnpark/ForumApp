@@ -177,8 +177,9 @@ def posts():
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
-@app.route('/api/post', methods=['GET', 'POST'])
-def post():
+@app.route('/api/post', methods=['POST'])
+@app.route('/api/post/<int:postId>', methods=['GET'])
+def post(postId):
 
     filterLiked = request.args.get("liked")
     filterCategoryId = request.args.get("categoryId")
@@ -230,7 +231,6 @@ def post():
         }
 
     if request.method == 'GET':
-        postId = request.args.get("postId")
         post = Post.getPostById(postId)
 
         postObject = {}
@@ -258,7 +258,7 @@ def post():
         postObject["comments"] = comments
 
         responseJSON = {
-            "post": post
+            "post": postObject
         }
 
     return jsonify(responseJSON)
@@ -294,6 +294,122 @@ def reports():
 
     if not user or not user.is_admin:
         returnError(403, "Only admins can view reports.")
+
+    # Query reports.
+    reportsQuery = Report.getAll()
+    reports = []
+    for report in reportsQuery:
+        reportObject = {}
+
+        reportObject["report_id"] =  report.report_id
+        reportObject["reported_name"] = User.getUserById(Post.getPostById(report.post_id).poster_id).name
+        reportObject["reporter_name"] = User.getUserById(report.reporter_id).name
+        reportObject["report_date"] =  report.report_time
+        reportObject["report_reason_ids"] = ReportHasReason.getReasonsForReport(report.report_id)
+        reportObject["reported_post_id"] = report.post_id
+
+        reports.append(reportObject)
+
+    # Query bans.
+    bansQuery = Ban.getAll()
+    bans = []
+    for ban in bansQuery:
+        banObject = {}
+
+        banObject["ban_id"] = ban_id
+        banObject["banned_name"] = User.getUserById(ban.banned_id).name
+        banObject["banned_by"] = User.getUserById(ban.banner_id).name
+        banObject["banned_date"] = ban.ban_time
+        banObject["banned_reason_ids"] = ReportHasReason.getReasonsForReport(ban.report_id)
+
+        bans.append(banObject)
+
+    responseJSON = {
+        "reports": reports,
+        "bans": bans
+    }
+
+    return jsonify(responseJSON)
+
+@app.route('/api/ban', methods=['POST'])
+def ban():
+
+    token = request.headers.get("token")
+    user = User.getUserByToken(token)
+
+    if not user or not user.is_admin:
+        returnError(403, "Only admins can ban users.")
+    
+    # Extract report ids to ban.
+    reportIdsRaw = request.form.get('reportIds').split(',')
+    reportIds = [int(x) for x in reportIdsRaw]
+
+    for reportId in reportIds:
+        report = Report.getReportById(reportId)
+        reported_id = Post.getPostById(report.post_id).poster_id
+
+        if Ban.getBannedStatus(reported_id):
+            continue
+
+        newBan = Ban(reported_id, user.user_id, report.report_id, 1)
+        db.session.add(newBan)
+
+    db.session.commit()
+
+    # Query reports.
+    reportsQuery = Report.getAll()
+    reports = []
+    for report in reportsQuery:
+        reportObject = {}
+
+        reportObject["report_id"] =  report.report_id
+        reportObject["reported_name"] = User.getUserById(Post.getPostById(report.post_id).poster_id).name
+        reportObject["reporter_name"] = User.getUserById(report.reporter_id).name
+        reportObject["report_date"] =  report.report_time
+        reportObject["report_reason_ids"] = ReportHasReason.getReasonsForReport(report.report_id)
+        reportObject["reported_post_id"] = report.post_id
+
+        reports.append(reportObject)
+
+    # Query bans.
+    bansQuery = Ban.getAll()
+    bans = []
+    for ban in bansQuery:
+        banObject = {}
+
+        banObject["ban_id"] = ban.ban_id
+        banObject["banned_name"] = User.getUserById(ban.banned_id).name
+        banObject["banned_by"] = User.getUserById(ban.banner_id).name
+        banObject["banned_date"] = ban.ban_time
+        banObject["banned_reason_ids"] = ReportHasReason.getReasonsForReport(ban.report_id)
+
+        bans.append(banObject)
+
+    responseJSON = {
+        "reports": reports,
+        "bans": bans
+    }
+
+    return jsonify(responseJSON)
+
+@app.route('/api/unban', methods=['POST'])
+def unban():
+
+    token = request.headers.get("token")
+    user = User.getUserByToken(token)
+
+    if not user or not user.is_admin:
+        returnError(403, "Only admins can ban users.")
+    
+    # Extract report ids to ban.
+    banIdsRaw = request.form.get('banIds').split(',')
+    banIds = [int(x) for x in banIdsRaw]
+
+    for banId in banIds:
+        ban = Ban.getBanById(banId)
+        ban.active = 0
+        
+    db.session.commit()
 
     # Query reports.
     reportsQuery = Report.getAll()

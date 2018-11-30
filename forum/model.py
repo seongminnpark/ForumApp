@@ -205,6 +205,10 @@ class Ban(db.Model):
     @classmethod
     def getAll(self):
         return self.query.filter(Ban.active).all()
+    
+    @classmethod
+    def getBanById(self, ban_id):
+        return self.query.filter(Ban.ban_id == ban_id).all()
 
 ###Report
 class Report(db.Model):
@@ -225,6 +229,10 @@ class Report(db.Model):
     @classmethod
     def getAll(self):
         return self.query.filter(Report.active).all()
+    
+    @classmethod
+    def getReportById(self, report_id):
+        return self.query.filter(Report.report_id == report_id).first()
 
 ###ReportReason
 class ReportReason(db.Model):
