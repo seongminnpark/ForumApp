@@ -190,11 +190,10 @@ class Ban(db.Model):
     ban_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
     active = db.Column(db.Integer, default=1)
 
-    def __init__(self, banned_id, banner_id, report_id, ban_time, active):
+    def __init__(self, banned_id, banner_id, report_id, active):
         self.banned_id = banned_id
         self.banner_id = banner_id
         self.report_id = report_id
-        self.ban_time = ban_time
         self.active = active
     
     @classmethod
@@ -217,10 +216,9 @@ class Report(db.Model):
     content = db.Column(db.Text, nullable=False)
     active = db.Column(db.Integer, default=1)
 
-    def __init__(self, reporter_id, post_id, report_time, content, active):
+    def __init__(self, reporter_id, post_id, content, active):
         self.reporter_id = reporter_id
         self.post_id = post_id
-        self.report_time = report_time
         self.content = content
         self.active = active
     
@@ -247,8 +245,9 @@ class ReportHasReason(db.Model):
     report_id = db.Column(db.Integer, db.ForeignKey('report.report_id'), nullable=False, primary_key=True)
     reason_id = db.Column(db.Integer, db.ForeignKey('report_reason.reason_id'), nullable=False, primary_key=True)
 
-    def __init__(self, description):
-        self.description = description
+    def __init__(self, report_id, reason_id):
+        self.report_id = report_id
+        self.reason_id = reason_id
     
     @classmethod
     def getReasonsForReport(self, report_id):

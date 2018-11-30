@@ -72,13 +72,9 @@ def user():
     profile["posts"] = posts
 
     # Construct response.
-    responseData = {
+    responseJSON = {
         "token": user.token,
         "profile": profile
-    }
-    responseJSON = {
-        "ok": True,
-        "data": responseData
     }
     return jsonify(responseJSON)
 
@@ -87,7 +83,7 @@ def login():
 
     emailRaw = request.form.get('email')
     passwordRaw = request.form.get('password')
-
+    
     # Query profile.
     user = User.getUserByEmail(emailRaw)
 
@@ -123,13 +119,9 @@ def login():
     profile["posts"] = posts
 
     # Construct response.
-    responseData = {
+    responseJSON = {
         "token": user.token,
         "profile": profile
-    }
-    responseJSON = {
-        "ok": True,
-        "data": responseData
     }
     return jsonify(responseJSON)
 
@@ -178,14 +170,12 @@ def posts():
         posts.append(postObject)
         
     # Construct response.
-    responseData = {
+    responseJSON = {
         "posts": posts
     }
-    responseJSON = {
-        "ok": True,
-        "data": responseData
-    }
-    return jsonify(responseJSON)
+    response = jsonify(responseJSON)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 @app.route('/api/post', methods=['GET', 'POST'])
 def post():
@@ -235,7 +225,7 @@ def post():
             posts.append(postObject)
 
         # Construct response.
-        responseData = {
+        responseJSON = {
             "posts": posts
         }
 
@@ -267,14 +257,10 @@ def post():
         
         postObject["comments"] = comments
 
-        responseData = {
+        responseJSON = {
             "post": post
         }
 
-    responseJSON = {
-        "ok": True,
-        "data": responseData
-    }
     return jsonify(responseJSON)
 
 def constructPostTile(post):
@@ -304,11 +290,10 @@ def constructPostTile(post):
 def reports():
 
     token = request.headers.get("token")
-
     user = User.getUserByToken(token)
 
     if not user or not user.is_admin:
-        returnError(400, "Only admins can view reports.")
+        returnError(403, "Only admins can view reports.")
 
     # Query reports.
     reportsQuery = Report.getAll()
@@ -339,16 +324,38 @@ def reports():
 
         bans.append(banObject)
 
-    responseData = {
+    responseJSON = {
         "reports": reports,
         "bans": bans
     }
 
-    responseJSON = {
-        "ok": True,
-        "data": responseData
-    }
     return jsonify(responseJSON)
+
+@app.route('/api/report', methods=['POST'])
+def report():
+
+    token = request.headers.get("token")
+    user = User.getUserByToken(token)
+
+    if not user:
+        return returnError(403, "Invalid user. Please log in again.")
+
+    postId = request.form.get('postId')
+    comment = request.form.getlist('comment')
+    newReport = Report(user.user_id, postId, comment, 1)
+    db.session.add(newReport)
+    db.session.flush()
+    db.session.refresh(newReport)
+
+    reportReasonIdsRaw = request.form.get('reportReasonIds').split(',')
+    reportReasonIds = [int(x) for x in reportReasonIdsRaw]
+
+    for reasonId in reportReasonIds:
+        newReason = ReportHasReason(newReport.report_id, reasonId)
+        db.session.add(newReason)
+    db.session.commit()
+
+    return jsonify({}), 200
 
 def returnError(statusCode, message):
     return jsonify({"message": message}), statusCode 

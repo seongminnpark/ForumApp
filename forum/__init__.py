@@ -11,6 +11,7 @@ from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS, cross_origin
 
 
 app = Flask(__name__)
@@ -19,6 +20,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://seongmin:12345@localhost/test1"
 app.config['SECRET_KEY'] = '12345'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+CORS(app)
 
 # login_manager = LoginManager(app)
 # login_manager.init_app(app)
