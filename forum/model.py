@@ -201,8 +201,9 @@ class Ban(db.Model):
     
     @classmethod
     def getBannedStatus(self, user_id):
-        query = self.query.filter(Ban.banned_id == user_id).first()
-        if query != None and not query.active: return 1
+        query = self.query.filter(Ban.banned_id == user_id).all()
+        for ban in query:
+            if ban.active: return 1
         else: return 0
     
     @classmethod
@@ -211,7 +212,7 @@ class Ban(db.Model):
     
     @classmethod
     def getBanById(self, ban_id):
-        return self.query.filter(Ban.ban_id == ban_id).all()
+        return self.query.filter(Ban.ban_id == ban_id).first()
 
 ###Report
 class Report(db.Model):

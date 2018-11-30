@@ -91,7 +91,7 @@ create table IF NOT EXISTS `report` (
 drop table if exists `ban`;
 create table IF NOT EXISTS `ban` (
     ban_id int(10) NOT NULL AUTO_INCREMENT, 
-	banned_id int(10) NOT NULL unique,
+	banned_id int(10) NOT NULL,
     banner_id int(10) NOT NULL,
     report_id int(10) NOT NULL,
     ban_time datetime NOT NULL,

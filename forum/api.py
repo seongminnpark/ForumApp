@@ -400,11 +400,11 @@ def ban():
         report = Report.getReportById(reportId)
         reported_id = Post.getPostById(report.post_id).poster_id
 
-        if Ban.getBannedStatus(reported_id):
-            continue
-
-        newBan = Ban(reported_id, user.user_id, report.report_id, 1)
-        db.session.add(newBan)
+        if not Ban.getBannedStatus(reported_id):
+            newBan = Ban(reported_id, user.user_id, report.report_id, 1)
+            db.session.add(newBan)
+        
+        report.active = 0
 
     db.session.commit()
 
