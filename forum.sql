@@ -157,10 +157,18 @@ VALUES ('User Three', 'user3@user3.com', 'user3', 'user3', 0, 5);
 
 -- Add initial posts.
 INSERT INTO post (poster_id, category_id, title, content, post_time)
-VALUES (1, 1, 'Forum is officially open!', "Write away!", "2018-10-27 12:11:12");
+VALUES (1, 1, 'Forum is officially open!', "Indeed, there’s even been a suggestion by Afri Schoedon, release manager for the Parity ethereum client, to release the upgrade on its own, separate blockchain network. Nevertheless, there are many voices contending ethereum 1x ought to be activated on the existing blockchain – and soon.
+
+Originally thought to be an addition to an upgrade called ethereum 2.0 – ethereum creator Vitalik Buterin has referred to it recently by an older name “Serenity” – the roadmap for this upgrade changed in June to include new design specifications that are projected to delay activation.
+
+As explained to CoinDesk by Schoedon, developers are now more certain ethereum 2.0 will not go into production before the year 2020. According to Schoedon, developers “started panicking and saying, ‘Hey we really need to find intermediate solutions’” – creating the impetus for new ideas able to be implemented in the near-term.
+
+And though ideas for ethereum 1x may “sound too radical or controversial” for now, Schoedon said that the goal is to discuss any and all ideas inclusively with community stakeholders such that “none of the upgrades will be controversial in the end.”", "2018-10-27 12:11:12");
 
 INSERT INTO post (poster_id, category_id, title, content, post_time)
-VALUES (2, 2, 'The weather is 40 degrees', "I hope it gets warm", "2018-10-27 12:11:12");
+VALUES (2, 2, 'The weather is 40 degrees', "With plans for ethereum 1x originally discussed during in-person meetings at an ethereum developer conference, Devcon4, earlier this month, certain members of the community were disgruntled at the lack of public involvement. Still, the controversy has been set aside for now with the creation of public forums to openly discuss ethereum 1x.
+
+In addition, meetings to coordinate efforts on this proposed upgrade are expected to proceed under Chatham House Rules, meaning public disclosure of the content of discussions must exclude speaker attribution.", "2018-10-27 12:11:12");
 
 INSERT INTO post (poster_id, category_id, title, content, post_time)
 VALUES (4, 3, 'Close this forum', "Close it!", "2018-11-17 12:11:12");

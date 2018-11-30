@@ -177,7 +177,7 @@ def posts():
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
-@app.route('/api/post', methods=['POST'])
+@app.route('/api/post', defaults={'postId': 0}, methods=['POST'])
 @app.route('/api/post/<int:postId>', methods=['GET'])
 def post(postId):
 
