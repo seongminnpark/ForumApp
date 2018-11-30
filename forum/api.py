@@ -188,6 +188,9 @@ def post(postId):
     if request.method == 'POST':
         poster = User.getUserByToken(token)
 
+        if not poster:
+            returnError(403, "Invalid user. Please log in again.")
+
         title = request.form.get('title')
         content = request.form.get('content')
         categoryId = request.form.get('categoryId')
@@ -244,14 +247,14 @@ def post(postId):
 
         commentsQuery = Comment.getComments(post.post_id)
         comments = []
-        for comment in comments:
+        for comment in commentsQuery:
             commentObject = {}
             commenter = User.getUserById(comment.commenter_id)
 
             commentObject["name"] = commenter.name
             commentObject["avatarId"] = commenter.avatar_id
             commentObject["content"] = comment.content
-            commentObject["date"] = comment.date
+            commentObject["date"] = comment.post_time
 
             comments.append(commentObject)
         
@@ -260,6 +263,55 @@ def post(postId):
         responseJSON = {
             "post": postObject
         }
+
+    return jsonify(responseJSON)
+
+@app.route('/api/comment', methods=['POST'])
+def comment():
+
+    token = request.headers.get("token")
+
+    user = User.getUserByToken(token)
+
+    if not user:
+        returnError(403, "Invalid user. Please log in again.")
+
+    postId = request.form.get('postId')
+    content = request.form.get('content')
+  
+    newComment = Comment(content, user.user_id, postId)
+    db.session.add(newComment)
+    db.session.commit()
+
+    post = Post.getPostById(postId)
+
+    postObject = {}
+    poster = User.getUserById(post.post_id)
+    
+    postObject["title"] = post.title,
+    postObject["date"] = post.post_time,
+    postObject["author"] = poster.name,
+    postObject["content"] = post.content,
+    postObject["author_avatar_id"] = poster.avatar_id,
+
+    commentsQuery = Comment.getComments(post.post_id)
+    comments = []
+    for comment in commentsQuery:
+        commentObject = {}
+        commenter = User.getUserById(comment.commenter_id)
+
+        commentObject["name"] = commenter.name
+        commentObject["avatarId"] = commenter.avatar_id
+        commentObject["content"] = comment.content
+        commentObject["date"] = comment.post_time
+
+        comments.append(commentObject)
+    
+    postObject["comments"] = comments
+
+    responseJSON = {
+        "post": postObject
+    }
 
     return jsonify(responseJSON)
 
