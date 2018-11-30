@@ -119,7 +119,7 @@ create table IF NOT EXISTS `report_has_reason` (
     foreign key (reason_id) references `report_reason`(reason_id)
 );
     
-
+-- Add post categories.
 INSERT INTO category (name)
 VALUES ("Announcement");
 
@@ -132,14 +132,65 @@ VALUES ("Question");
 INSERT INTO category ( name)
 VALUES ("Guide");
 
+-- Add report reasons.
 INSERT INTO report_reason (description)
 VALUES ("Vulgar");
 
 INSERT INTO report_reason (description)
 VALUES ("Advertising");
 
-INSERT INTO report_reason ( description)
+INSERT INTO report_reason (description)
 VALUES ("Irrelevant");
 
-INSERT INTO user (user_id, name, email, password_hash, token, is_admin, avatar_id)
-VALUES (0, 'John Ham', 'admin@admin.com', '12345', '12345', 1, 0);
+-- Add initial users.
+INSERT INTO user (name, email, password_hash, token, is_admin, avatar_id)
+VALUES ('Ad Min', 'admin@admin.com', 'admin', 'admin', 1, 0);
+
+INSERT INTO user (name, email, password_hash, token, is_admin, avatar_id)
+VALUES ('User One', 'user1@user1.com', 'user1', 'user1', 0, 1);
+
+INSERT INTO user (name, email, password_hash, token, is_admin, avatar_id)
+VALUES ('User Two', 'user2@user2.com', 'user2', 'user2', 0, 2);
+
+INSERT INTO user (name, email, password_hash, token, is_admin, avatar_id)
+VALUES ('User Three', 'user3@user3.com', 'user3', 'user3', 0, 5);
+
+-- Add initial posts.
+INSERT INTO post (poster_id, category_id, title, content, post_time)
+VALUES (1, 1, 'Forum is officially open!', "Write away!", "2018-10-27 12:11:12");
+
+INSERT INTO post (poster_id, category_id, title, content, post_time)
+VALUES (2, 2, 'The weather is 40 degrees', "I hope it gets warm", "2018-10-27 12:11:12");
+
+INSERT INTO post (poster_id, category_id, title, content, post_time)
+VALUES (4, 3, 'Close this forum', "Close it!", "2018-11-17 12:11:12");
+
+-- Add initial reports.
+INSERT INTO report (reporter_id, post_id, report_time, content, active)
+VALUES (2, 3, '2018-08-19 12:19:28', "Stupid post", 1);
+
+INSERT INTO report (reporter_id, post_id, report_time, content, active)
+VALUES (2, 2, '2017-08-19 12:19:28', "Stupid post", 0);
+
+-- Add initial report reasons belonging to reports.
+INSERT INTO report_has_reason (report_id, reason_id)
+VALUES (1, 1);
+
+INSERT INTO report_has_reason (report_id, reason_id)
+VALUES (1, 2);
+
+INSERT INTO report_has_reason (report_id, reason_id)
+VALUES (1, 3);
+
+INSERT INTO report_has_reason (report_id, reason_id)
+VALUES (2, 1);
+
+INSERT INTO report_has_reason (report_id, reason_id)
+VALUES (2, 2);
+
+-- Add initial bans.
+INSERT INTO ban (banned_id, banner_id, report_id, ban_time, active)
+VALUES (3, 1, 2, "2018-10-19 10:19:28", 1);
+
+INSERT INTO ban (banned_id, banner_id, report_id, ban_time, active)
+VALUES (2, 1, 2, "2018-10-19 12:19:28", 0);

@@ -317,8 +317,8 @@ def reports():
         reportObject = {}
 
         reportObject["report_id"] =  report.report_id
-        reportObject["reported_name"] = User.getUserById(report.reported_id).name
-        reportObject["reporter_name"] = User.getUserById(Post.getPostById(report.post_id).poster_id).name
+        reportObject["reported_name"] = User.getUserById(Post.getPostById(report.post_id).poster_id).name
+        reportObject["reporter_name"] = User.getUserById(report.reporter_id).name
         reportObject["report_date"] =  report.report_time
         reportObject["report_reason_ids"] = ReportHasReason.getReasonsForReport(report.report_id)
         reportObject["reported_post_id"] = report.post_id
