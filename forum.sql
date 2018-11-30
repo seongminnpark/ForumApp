@@ -65,12 +65,9 @@ create table IF NOT EXISTS `comment` (
 
 drop table if exists `likes`;
 create table IF NOT EXISTS `likes` (
-	likes_id int(10) NOT NULL auto_increment,
 	user_id int(10) NOT NULL,
     post_id int(10) NOT NULL,
-	like_time datetime NOT NULL,
-    primary key (likes_id),
-    unique(user_id, post_id),
+    primary key (user_id, post_id),
     foreign key (post_id) references post(post_id) ON DELETE CASCADE,
     foreign key (user_id) references user(user_id)
 );
@@ -173,6 +170,15 @@ In addition, meetings to coordinate efforts on this proposed upgrade are expecte
 INSERT INTO post (poster_id, category_id, title, content, post_time)
 VALUES (4, 3, 'Close this forum', "Close it!", "2018-11-17 12:11:12");
 
+INSERT INTO post (poster_id, category_id, title, content, post_time)
+VALUES (2, 3, 'Close this forum', "Close it!", "2018-11-17 12:11:12");
+
+INSERT INTO post (poster_id, category_id, title, content, post_time)
+VALUES (2, 3, 'Close this forum', "Close it!", "2018-11-17 12:11:12");
+
+INSERT INTO post (poster_id, category_id, title, content, post_time)
+VALUES (2, 3, 'Close this forum', "Close it!", "2018-11-17 12:11:12");
+
 -- Add initial reports.
 INSERT INTO report (reporter_id, post_id, report_time, content, active)
 VALUES (2, 3, '2018-08-19 12:19:28', "Stupid post", 1);
@@ -202,3 +208,13 @@ VALUES (3, 1, 2, "2018-10-19 10:19:28", 1);
 
 INSERT INTO ban (banned_id, banner_id, report_id, ban_time, active)
 VALUES (2, 1, 2, "2018-10-19 12:19:28", 0);
+
+-- Add initial likes.
+INSERT INTO likes (user_id, post_id)
+VALUES (1, 1);
+
+INSERT INTO likes (user_id, post_id)
+VALUES (2, 1);
+
+INSERT INTO likes (user_id, post_id)
+VALUES (3, 1);

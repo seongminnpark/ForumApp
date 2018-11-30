@@ -9,6 +9,7 @@
 from datetime import datetime
 
 from flask import render_template, request, redirect, url_for, flash
+from sqlalchemy import func
 # from flask_login import login_required, current_user, login_user, logout_user
 # from .form import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, CommentForm, ViewTopicForm
 from forum import app, db
@@ -548,6 +549,38 @@ def like():
 
     responseJSON = {
         "likedPosts": [x.post_id for x in Likes.getLikedPostsByUser(user.user_id)]
+    }
+
+    return jsonify(responseJSON)
+
+@app.route('/api/stats', methods=['GET'])
+def stats():
+
+    postCountQuery = db.session.query(Post.poster_id, func.count(Post.post_id)).group_by(Post.poster_id).order_by(func.count(Post.post_id).desc()).first()
+
+    likeCountQuery = db.session.query(Post.poster_id, func.count(Post.poster_id)).join(Likes).filter(Post.post_id == Likes.post_id).group_by(Post.poster_id).order_by(func.count(Post.poster_id).desc()).first()
+
+    likePostQuery = db.session.query(Likes.post_id, func.count(Likes.post_id)).group_by(Likes.post_id).order_by(func.count(Likes.post_id).desc()).first()
+
+    bansCountQuery = db.session.query(Ban.banned_id, func.count(Ban.ban_id)).group_by(Ban.banned_id).order_by(func.count(Ban.ban_id).desc()).first()
+
+    responseJSON = {
+        "post_count": len(Post.getAll()),
+        "user_count": len(User.getAll()),
+        "category_count": {
+            "Announcement": Post.getPostCountByCategoryId(1),
+            "Discussion": Post.getPostCountByCategoryId(2),
+            "Questin": Post.getPostCountByCategoryId(3),
+            "Guide": Post.getPostCountByCategoryId(4)
+        },
+        "most_posts_count": postCountQuery[1],
+        "most_posts_name": User.getUserById(postCountQuery[0]).name,
+        "most_likes_count": likeCountQuery[1],
+        "most_likes_name": User.getUserById(likeCountQuery[0]).name,
+        "most_likes_post_count": likePostQuery[1],
+        "most_likes_post_name": User.getUserById(likePostQuery[0]).name,
+        "most_bans_count": bansCountQuery[1],
+        "most_bans_name": User.getUserById(bansCountQuery[0]).name
     }
 
     return jsonify(responseJSON)

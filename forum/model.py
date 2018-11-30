@@ -124,6 +124,10 @@ class Post(db.Model):
     @classmethod
     def getAll(self):
         return self.query.all()
+    
+    @classmethod 
+    def getPostCountByCategoryId(self, category_id):
+        return self.query.filter(Post.category_id == category_id).count()
 
 ###Comment
 class Comment(db.Model):
@@ -158,10 +162,8 @@ class Comment(db.Model):
 ###Likes
 class Likes(db.Model):
     __tablename__ = 'likes'
-    likes_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
-    post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
-    like_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False, primary_key=True)
 
     def __init__(self, user_id, post_id):
         self.user_id = user_id
