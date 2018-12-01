@@ -16,6 +16,8 @@ from forum import app, db
 from .model import User, Category, Post, Comment, Likes, Ban, Report, ReportReason, ReportHasReason
 from flask import jsonify
 
+import functools
+
 
 # Function
 @app.route('/')
@@ -167,6 +169,7 @@ def posts():
 
     filterLiked = True if request.args.get("liked") == 'true' else False
     filterCategoryId = request.args.get("categoryId")
+    sortMethod = request.args.get("sortMethod")
     token = request.headers.get("token")
 
     if token:
@@ -193,11 +196,50 @@ def posts():
         
     # Construct response.
     responseJSON = {
-        "posts": posts
+        "posts": sortPosts(posts, sortMethod)
     }
     response = jsonify(responseJSON)
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+def comparePostsByNewest(a, b):
+    aTime = a['date']
+    bTime = b['date']
+    if aTime < bTime:
+        return 1
+    elif aTime == bTime:
+        return 0
+    else:
+        return -1
+
+def comparePostsByOldest(a, b):
+    aTime = a['date']
+    bTime = b['date']
+    if aTime > bTime:
+        return 1
+    elif aTime == bTime:
+        return 0
+    else:
+        return -1
+
+def comparePostsByLikes(a, b):
+    aLikes = a['likes']
+    bLikes = a['likes']
+    if aLikes > bLikes:
+        return 1
+    elif aLikes == bLikes:
+        return 0
+    else:
+        return -1
+
+def sortPosts(posts, sortMethod):
+    if sortMethod == '0':
+        return sorted(posts, key=functools.cmp_to_key(comparePostsByNewest))
+    elif sortMethod == '1':
+        return sorted(posts, key=functools.cmp_to_key(comparePostsByOldest))
+    elif sortMethod == '2':
+        return sorted(posts, key=functools.cmp_to_key(comparePostsByLikes))
+
 
 @app.route('/api/post', defaults={'postId': 0}, methods=['POST'])
 @app.route('/api/post/<int:postId>', methods=['GET'])
@@ -250,12 +292,12 @@ def post(postId):
         postObject = {}
         poster = User.getUserById(post.post_id)
         
-        postObject["title"] = post.title,
-        postObject["date"] = post.post_time,
-        postObject["author"] = poster.name,
-        postObject["content"] = post.content,
-        postObject["author_avatar_id"] = poster.avatar_id,
-        postObject["likes"] = Likes.getPostLikeCount(post.post_id),
+        postObject["title"] = post.title
+        postObject["date"] = post.post_time
+        postObject["author"] = poster.name if poster != None else None
+        postObject["content"] = post.content
+        postObject["author_avatar_id"] = poster.avatar_id if poster != None else None
+        postObject["likes"] = Likes.getPostLikeCount(post.post_id)
 
         commentsQuery = Comment.getComments(post.post_id)
         comments = []
@@ -340,7 +382,7 @@ def constructPostTile(post):
     postObject["author_avatar_id"] = poster.avatar_id
     postObject["category_id"] = post.category_id
     postObject["likes"] = Likes.getPostLikeCount(post.post_id)
-
+    
     commentsQuery = Comment.getComments(post.post_id)
     commentAvatars = []
     for comment in commentsQuery:
