@@ -189,7 +189,7 @@ class Likes(db.Model):
     
     @classmethod
     def userLikedPost(self, user_id, post_id):
-        return self.query.filter(Likes.user_id == user_id).filter(Likes.post_id == post_id) != None
+        return self.query.filter(Likes.user_id == user_id).filter(Likes.post_id == post_id).first() != None
 
 ###Ban
 class Ban(db.Model):

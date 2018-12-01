@@ -165,7 +165,7 @@ def posts():
     if request.method == 'POST':
         pass
 
-    filterLiked = request.args.get("liked")
+    filterLiked = True if request.args.get("liked") == 'true' else False
     filterCategoryId = request.args.get("categoryId")
     token = request.headers.get("token")
 
@@ -173,23 +173,20 @@ def posts():
         user = User.getUserByToken(token)
 
     # Query posts.
-    # postsQuery = (db.session.query(User,Post,Likes,Category)
-    #         .filter(Post.category_id == Category.category_id)
-    #         .filter(Post.poster_id == User.user_id)
-    #         .filter(Likes.post_id == Post.post_id)
-    #         .filter(Likes.user_id == User.user_id))
     postsQuery = Post.getAll()
-
+    
     posts = []
     for post in postsQuery:
 
         # Filter liked posts.
-        if (token and filterLiked and Likes.userLikedPost(user.user_id, post.post_id)):
+        if (user and filterLiked and not Likes.userLikedPost(user.user_id, post.post_id)):
                 continue
 
         # Filter by category id.
-        if (filterCategoryId and post.category_id != filterCategoryId):
-                continue
+        if filterCategoryId:
+            if (filterCategoryId != 'all' and str(post.category_id) != filterCategoryId):
+                continue 
+                
 
         postObject = constructPostTile(post)
         posts.append(postObject)
@@ -206,7 +203,7 @@ def posts():
 @app.route('/api/post/<int:postId>', methods=['GET'])
 def post(postId):
 
-    filterLiked = request.args.get("liked")
+    filterLiked = True if request.args.get("liked") == 'true' else False 
     filterCategoryId = request.args.get("categoryId")
     token = request.headers.get("token")
 
@@ -224,31 +221,20 @@ def post(postId):
         db.session.commit()
 
         # Query posts.
-        # postsQuery = (db.session.query(User,Post,Likes,Category)
-        #         .filter(Post.category_id == Category.category_id)
-        #         .filter(Post.poster_id == User.user_id)
-        #         .filter(Likes.post_id == Post.post_id)
-        #         .filter(Likes.user_id == User.user_id))
         postsQuery = Post.getAll()
-
-        # Filter liked posts.
-        if filterLiked:
-            postsQuery = postsQuery.filter(Likes.user_id == poster.user_id)
-
-        # Filter by category id.
-        if filterCategoryId:
-            postsQuery = postsQuery.filter(Category.category_id == filterCategoryId)
-
-        # postsQuery = postsQuery.all()
-
-        posts = []
         
-        for post in postsQuery: 
-            if (token and  filterLiked and Likes.userLikedPost(poster.user_id, post.post_id)):
-                continue
+        posts = []
+        for post in postsQuery:
 
-            if (filterCategoryId and post.category_id != filterCategoryId):
-                continue
+            # Filter liked posts.
+            if (user and filterLiked and not Likes.userLikedPost(user.user_id, post.post_id)):
+                    continue
+
+            # Filter by category id.
+            if filterCategoryId:
+                if (filterCategoryId != 'all' and str(post.category_id) != filterCategoryId):
+                    continue 
+                    
 
             postObject = constructPostTile(post)
             posts.append(postObject)

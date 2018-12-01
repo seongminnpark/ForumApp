@@ -117,6 +117,9 @@ create table IF NOT EXISTS `report_has_reason` (
 );
     
 -- Add post categories.
+-- INSERT INTO category (name)
+-- VALUES ("All");
+
 INSERT INTO category (name)
 VALUES ("Announcement");
 
