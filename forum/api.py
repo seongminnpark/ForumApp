@@ -588,7 +588,7 @@ def like():
     user = User.getUserByToken(token)
 
     if not user:
-        returnError(403, "Invalid user. Please log in again.")
+        return returnError(403, "Invalid user. Please log in again.")
 
     postId = request.form.get('postId')
 

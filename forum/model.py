@@ -185,7 +185,7 @@ class Likes(db.Model):
     
     @classmethod
     def getLike(self, user_id, post_id):
-        return self.query.filter(Likes.post_id == post_id and Likes.user_id == user_id).first()
+        return self.query.filter(Likes.post_id == post_id).filter(Likes.user_id == user_id).first()
     
     @classmethod
     def userLikedPost(self, user_id, post_id):
