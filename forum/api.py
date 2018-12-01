@@ -259,13 +259,14 @@ def sortPosts(posts, sortMethod):
 @app.route('/api/post/<int:postId>', methods=['GET'])
 def post(postId):
 
-    filterLiked = True if request.args.get("liked") == 'true' else False 
-    filterCategoryId = request.args.get("categoryId")
+    # filterLiked = True if request.args.get("liked") == 'true' else False 
+    # filterCategoryId = request.args.get("categoryId")
+    # sortMethod = request.args.get("sortMethod")
     token = request.headers.get("token")
 
     if request.method == 'POST':
         poster = User.getUserByToken(token)
-
+  
         if not poster:
             returnError(403, "Invalid user. Please log in again.")
 
@@ -276,35 +277,16 @@ def post(postId):
         db.session.add(newPost)
         db.session.commit()
 
-        # Query posts.
-        postsQuery = Post.getAll()
-        
-        posts = []
-        for post in postsQuery:
-
-            # Filter liked posts.
-            if (user and filterLiked and not Likes.userLikedPost(user.user_id, post.post_id)):
-                    continue
-
-            # Filter by category id.
-            if filterCategoryId:
-                if (filterCategoryId != 'all' and str(post.category_id) != filterCategoryId):
-                    continue 
-                    
-
-            postObject = constructPostTile(post)
-            posts.append(postObject)
-
         # Construct response.
         responseJSON = {
-            "posts": sortPosts(posts, sortMethod)
+            # "posts": sortPosts(posts, sortMethod)
         }
 
     if request.method == 'GET':
         post = Post.getPostById(postId)
 
         postObject = {}
-        poster = User.getUserById(post.post_id)
+        poster = User.getUserById(post.poster_id)
         
         postObject["title"] = post.title
         postObject["date"] = post.post_time
