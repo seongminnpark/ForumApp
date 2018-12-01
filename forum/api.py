@@ -40,6 +40,8 @@ def user():
             return returnError(400, "Invalid name.")
         if emailRaw == 'null':
             return returnError(400, "Invalid email.")
+        if User.getUserByEmail(emailRaw):
+            return returnError(400, "Email already exists.")
         if passwordRaw == 'null':
             return returnError(400, "Invalid password.")
         newUser = User(nameRaw, emailRaw, passwordRaw, token, 0, avatarIdRaw)
