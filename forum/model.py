@@ -11,6 +11,7 @@
 from datetime import datetime
 from flask._compat import text_type
 from flask_login import UserMixin
+from sqlalchemy import or_
 # from forum import login_manager, db
 from forum import db
 
@@ -130,8 +131,8 @@ class Post(db.Model):
         return self.query.filter(Post.content.like('%' + keyword + '%')).all()
     
     @classmethod
-    def getPostsWithTitleContaining(self, keyword):
-        return self.query.filter(Post.title.like('%' + keyword + '%')).all()
+    def getPostsContaining(self, keyword):
+        return self.query.filter(Post.title.like('%' + keyword + '%') | Post.content.like('%' + keyword + '%')).all()
     
     @classmethod 
     def getPostCountByCategoryId(self, category_id):

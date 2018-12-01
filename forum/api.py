@@ -222,7 +222,7 @@ def search():
     searchTerm = request.args.get("searchTerm")
 
     # Query posts and comments.
-    postsQuery = Post.getPostsWithTitleContaining(searchTerm) + Post.getPostsWithContentContaining(searchTerm)
+    postsQuery = Post.getPostsContaining(searchTerm)
     commentsQuery = Comment.getCommentsContaining(searchTerm)
     
     posts = []
