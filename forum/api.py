@@ -224,8 +224,8 @@ def comparePostsByOldest(a, b):
 
 def comparePostsByLikes(a, b):
     aLikes = a['likes']
-    bLikes = a['likes']
-    if aLikes > bLikes:
+    bLikes = b['likes']
+    if aLikes < bLikes:
         return 1
     elif aLikes == bLikes:
         return 0
@@ -283,7 +283,7 @@ def post(postId):
 
         # Construct response.
         responseJSON = {
-            "posts": posts
+            "posts": sortPosts(posts, sortMethod)
         }
 
     if request.method == 'GET':
