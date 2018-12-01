@@ -105,6 +105,11 @@ def login():
 
     emailRaw = request.form.get('email')
     passwordRaw = request.form.get('password')
+
+    if emailRaw == 'null':
+        return returnError(400, "Invalid email.")
+    if passwordRaw == 'null':
+        return returnError(400, "Invalid password.")
     
     # Query profile.
     user = User.getUserByEmail(emailRaw)
