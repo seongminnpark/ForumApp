@@ -255,6 +255,7 @@ def post(postId):
         postObject["author"] = poster.name,
         postObject["content"] = post.content,
         postObject["author_avatar_id"] = poster.avatar_id,
+        postObject["likes"] = Likes.getPostLikeCount(post.post_id),
 
         commentsQuery = Comment.getComments(post.post_id)
         comments = []
@@ -304,6 +305,7 @@ def comment():
     postObject["author"] = poster.name,
     postObject["content"] = post.content,
     postObject["author_avatar_id"] = poster.avatar_id,
+    postObject["likes"] = Likes.getPostLikeCount(post.post_id),
 
     commentsQuery = Comment.getComments(post.post_id)
     comments = []
