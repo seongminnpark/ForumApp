@@ -216,6 +216,43 @@ def posts():
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+@app.route('/api/search', methods=['GET'])
+def search():
+
+    searchTerm = request.args.get("searchTerm")
+
+    # Query posts and comments.
+    postsQuery = Post.getPostsWithTitleContaining(searchTerm) + Post.getPostsWithContentContaining(searchTerm)
+    commentsQuery = Comment.getCommentsContaining(searchTerm)
+    
+    posts = []
+    for post in postsQuery:
+        postObject = constructPostTile(post)
+        posts.append(postObject)
+
+    comments = []
+    for comment in commentsQuery:
+        commentObject = {}
+        commenter = User.getUserById(comment.commenter_id)
+        commentObject["postId"] = comment.post_id
+        commentObject["commentId"] = comment.comment_id
+        commentObject["name"] = commenter.name
+        commentObject["avatarId"] = commenter.avatar_id
+        commentObject["content"] = comment.content
+        commentObject["date"] = comment.post_time
+        comments.append(commentObject)
+        
+    # Construct response.
+    responseJSON = {
+        "searchResults": {
+            "posts": posts,
+            "comments": comments
+        }
+    }
+    response = jsonify(responseJSON)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
 def comparePostsByNewest(a, b):
     aTime = a['date']
     bTime = b['date']
@@ -336,7 +373,7 @@ def comment():
     post = Post.getPostById(postId)
 
     postObject = {}
-    poster = User.getUserById(post.post_id)
+    poster = User.getUserById(post.poster_id)
     
     postObject["title"] = post.title,
     postObject["date"] = post.post_time,

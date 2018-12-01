@@ -125,6 +125,14 @@ class Post(db.Model):
     def getAll(self):
         return self.query.all()
     
+    @classmethod
+    def getPostsWithContentContaining(self, keyword):
+        return self.query.filter(Post.content.like('%' + keyword + '%')).all()
+    
+    @classmethod
+    def getPostsWithTitleContaining(self, keyword):
+        return self.query.filter(Post.title.like('%' + keyword + '%')).all()
+    
     @classmethod 
     def getPostCountByCategoryId(self, category_id):
         return self.query.filter(Post.category_id == category_id).count()
@@ -152,6 +160,10 @@ class Comment(db.Model):
     @classmethod
     def getComments(self, post_id):
         return self.query.filter(Comment.post_id == post_id).all()
+
+    @classmethod
+    def getCommentsContaining(self, keyword):
+        return self.query.filter(Comment.content.like('%' + keyword + '%')).all()
     
     @classmethod
     def getCommentsByUser(self, user_id):
