@@ -35,6 +35,13 @@ def user():
         passwordRaw = request.form.get('password')
         avatarIdRaw = request.form.get('avatarId')
         token = nameRaw
+        
+        if nameRaw == 'null':
+            return returnError(400, "Invalid name.")
+        if emailRaw == 'null':
+            return returnError(400, "Invalid email.")
+        if passwordRaw == 'null':
+            return returnError(400, "Invalid password.")
         newUser = User(nameRaw, emailRaw, passwordRaw, token, 0, avatarIdRaw)
         db.session.add(newUser)
         db.session.commit()
