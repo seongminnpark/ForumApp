@@ -7,6 +7,7 @@
 # @Software: PyCharm
 # ---------------------
 from datetime import datetime
+import secrets
 
 from flask import render_template, request, redirect, url_for, flash
 from sqlalchemy import func
@@ -34,7 +35,7 @@ def user():
         emailRaw = request.form.get('email')
         passwordRaw = request.form.get('password')
         avatarIdRaw = request.form.get('avatarId')
-        token = nameRaw
+        token = secrets.token_hex(8)
         
         if nameRaw == 'null':
             return returnError(400, "Invalid name.")
