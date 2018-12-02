@@ -460,6 +460,7 @@ def reports():
         banObject["banned_by"] = User.getUserById(ban.banner_id).name
         banObject["banned_date"] = ban.ban_time
         banObject["banned_reason_ids"] = ReportHasReason.getReasonsForReport(ban.report_id)
+        banObject["reported_post_id"] = Report.getReportById(ban.report_id).post_id
 
         bans.append(banObject)
 
