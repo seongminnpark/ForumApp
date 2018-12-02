@@ -168,8 +168,8 @@ def login():
 
 def getLikesReceived(user_id):
     query = (db.session.query(User,Post,Likes)
-                .filter(Post.poster_id == user_id).filter(Likes.post_id == Post.post_id)).all()
-    return len(query)
+                .filter(Post.poster_id == user_id).filter(Likes.post_id == Post.post_id)).count()
+    return query
 
 def hashPassword(password):
     return password
