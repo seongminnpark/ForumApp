@@ -24,7 +24,7 @@ import functools
 def index():
     return render_template('index.html', title='index')
 
-@app.route('/api/user', methods=['GET', 'POST'])
+@app.route('/api/user', methods=['GET', 'POST', 'PUT'])
 def user():
 
     token = request.headers.get("token")
@@ -47,18 +47,39 @@ def user():
         newUser = User(nameRaw, emailRaw, passwordRaw, token, 0, avatarIdRaw)
         db.session.add(newUser)
         db.session.commit()
-
+    
     # Query profile.
     user = User.getUserByToken(token)
 
-    if request.method == 'GET':
-        if user == None:
-            return returnError(404, "Invalid user token supplied while fetching profile.")
+    if not user:
+        return returnError(404, "Invalid user token supplied while fetching profile.")
+
+    if request.method == 'PUT':
+
+        nameRaw = request.form.get('name')
+        emailRaw = request.form.get('email')
+        passwordRaw = request.form.get('password')
+        avatarIdRaw = request.form.get('avatarId')
+        token = nameRaw
+        
+        emailUser = User.getUserByEmail(emailRaw)
+        if emailUser and user.user_id != emailUser.user_id:
+            return returnError(304, "Email already in use.")
+
+        user.name = nameRaw
+        user.email = emailRaw
+        user.avatar_id = avatarIdRaw
+        
+        if passwordRaw != 'null':
+            user.password_hash = hashPassword(passwordRaw)
+
+        db.session.commit()
+        db.session.refresh(user)
 
     postsQuery = Post.getPostsByUser(user.user_id)
     likedPostsQuery = Likes.getLikedPostsByUser(user.user_id)
     commentsQuery = Comment.getCommentsByUser(user.user_id)
-
+   
     # Construct profile data.
     profile = {}
     profile["name"] = user.name
