@@ -357,6 +357,8 @@ def post(postId):
         postObject["content"] = post.content
         postObject["author_avatar_id"] = poster.avatar_id if poster != None else None
         postObject["likes"] = Likes.getPostLikeCount(post.post_id)
+        user = User.getUserByToken(token)
+        postObject["canEdit"] = user and poster.user_id == user.user_id
 
         commentsQuery = Comment.getComments(post.post_id)
         comments = []
