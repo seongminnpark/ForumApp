@@ -364,7 +364,8 @@ def post(postId):
         post.title = title
         post.content = content
         post.category_id = categoryId
-
+        post.post_time = datetime.now()
+        
         db.session.commit()
         db.session.refresh(post)
 
