@@ -24,7 +24,7 @@ import functools
 def index():
     return render_template('index.html', title='index')
 
-@app.route('/api/user', methods=['GET', 'POST', 'PUT'])
+@app.route('/api/user', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def user():
 
     token = request.headers.get("token")
@@ -53,6 +53,11 @@ def user():
 
     if not user:
         return returnError(404, "Invalid user token supplied while fetching profile.")
+    
+    if request.method == 'DELETE':
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({})
 
     if request.method == 'PUT':
 
