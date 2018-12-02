@@ -168,8 +168,7 @@ def login():
 
 def getLikesReceived(user_id):
     query = (db.session.query(User,Post,Likes)
-                .filter(Post.poster_id == User.user_id)
-                .filter(Likes.post_id == Post.post_id)).all()
+                .filter(Post.poster_id == user_id).filter(Likes.post_id == Post.post_id)).all()
     return len(query)
 
 def hashPassword(password):
@@ -651,15 +650,40 @@ def stats():
 
     bansCountQuery = db.session.query(Ban.banned_id, func.count(Ban.ban_id)).group_by(Ban.banned_id).order_by(func.count(Ban.ban_id).desc()).first()
 
+    lineChartData = [
+        {"name":"1", "users": 0, "posts": 0},
+        {"name":"2", "users": 0, "posts": 0},
+        {"name":"3", "users": 0, "posts": 0},
+        {"name":"4", "users": 0, "posts": 0},
+        {"name":"5", "users": 0, "posts": 0},
+        {"name":"6", "users": 0, "posts": 0},
+        {"name":"7", "users": 0, "posts": 0},
+        {"name":"8", "users": 0, "posts": 0},
+        {"name":"9", "users": 0, "posts": 0},
+        {"name":"10", "users": 0, "posts": 0},
+        {"name":"11", "users": 0, "posts": 0},
+        {"name":"12", "users": 0, "posts": 0},
+    ]
+
+    postsQuery = Post.getAll()
+    for post in postsQuery:
+        month = post.post_time.month
+        lineChartData[month-1]["posts"] += 1 
+
+    usersQuery = User.getAll()
+    for user in usersQuery:
+        month = user.date_joined.month
+        lineChartData[month-1]["users"] += 1 
+
     responseJSON = {
         "post_count": len(Post.getAll()),
         "user_count": len(User.getAll()),
-        "category_count": {
-            "Announcement": Post.getPostCountByCategoryId(1),
-            "Discussion": Post.getPostCountByCategoryId(2),
-            "Questin": Post.getPostCountByCategoryId(3),
-            "Guide": Post.getPostCountByCategoryId(4)
-        },
+        "category_count": [
+            {"name":"Announcement", "value": Post.getPostCountByCategoryId(1)},
+            {"name":"Discussion", "value": Post.getPostCountByCategoryId(2)},
+            {"name":"Question", "value": Post.getPostCountByCategoryId(3)},
+            {"name":"Guide", "value": Post.getPostCountByCategoryId(4)}
+        ],
         "most_posts_count": postCountQuery[1],
         "most_posts_name": User.getUserById(postCountQuery[0]).name,
         "most_likes_count": likeCountQuery[1],
@@ -667,7 +691,8 @@ def stats():
         "most_likes_post_count": likePostQuery[1],
         "most_likes_post_name": User.getUserById(likePostQuery[0]).name,
         "most_bans_count": bansCountQuery[1],
-        "most_bans_name": User.getUserById(bansCountQuery[0]).name
+        "most_bans_name": User.getUserById(bansCountQuery[0]).name,
+        "line_chart_data": lineChartData
     }
 
     return jsonify(responseJSON)
