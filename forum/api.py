@@ -319,7 +319,7 @@ def sortPosts(posts, sortMethod):
 
 
 @app.route('/api/post', defaults={'postId': 0}, methods=['POST'])
-@app.route('/api/post/<int:postId>', methods=['GET'])
+@app.route('/api/post/<int:postId>', methods=['GET', 'PUT'])
 def post(postId):
 
     # filterLiked = True if request.args.get("liked") == 'true' else False 
@@ -341,43 +341,69 @@ def post(postId):
         db.session.commit()
 
         # Construct response.
-        responseJSON = {
-            # "posts": sortPosts(posts, sortMethod)
-        }
+        return jsonify({})
 
-    if request.method == 'GET':
-        post = Post.getPostById(postId)
+    post = Post.getPostById(postId)
 
-        postObject = {}
-        poster = User.getUserById(post.poster_id)
+    if request.method == 'PUT':
+        poster = User.getUserByToken(token)
+  
+        if not poster:
+            returnError(403, "Invalid user. Please log in again.")
+
+        if not (poster.user_id == post.poster_id):
+            returnError(403, "Unauthorized to edit this post.")
         
-        postObject["title"] = post.title
-        postObject["date"] = post.post_time
-        postObject["author"] = poster.name if poster != None else None
-        postObject["content"] = post.content
-        postObject["author_avatar_id"] = poster.avatar_id if poster != None else None
-        postObject["likes"] = Likes.getPostLikeCount(post.post_id)
-        user = User.getUserByToken(token)
-        postObject["canEdit"] = user and poster.user_id == user.user_id
+        if not post:
+            returnError(403, "Invalid post.")
 
-        commentsQuery = Comment.getComments(post.post_id)
-        comments = []
-        for comment in commentsQuery:
-            commentObject = {}
-            commenter = User.getUserById(comment.commenter_id)
+        title = request.form.get('title')
+        content = request.form.get('content')
+        categoryId = request.form.get('categoryId')
 
-            commentObject["name"] = commenter.name
-            commentObject["avatarId"] = commenter.avatar_id
-            commentObject["content"] = comment.content
-            commentObject["date"] = comment.post_time
+        post.title = title
+        post.content = content
+        post.category_id = categoryId
 
-            comments.append(commentObject)
-        
-        postObject["comments"] = comments
+        db.session.commit()
+        db.session.refresh(post)
 
-        responseJSON = {
-            "post": postObject
-        }
+        # # Construct response.
+        # responseJSON = {
+        #     # "posts": sortPosts(posts, sortMethod)
+        # }
+
+    postObject = {}
+    poster = User.getUserById(post.poster_id)
+    
+    postObject["title"] = post.title
+    postObject["date"] = post.post_time
+    postObject["author"] = poster.name if poster != None else None
+    postObject["content"] = post.content
+    postObject["author_avatar_id"] = poster.avatar_id if poster != None else None
+    postObject["likes"] = Likes.getPostLikeCount(post.post_id)
+    user = User.getUserByToken(token)
+    postObject["canEdit"] = user and poster.user_id == user.user_id
+    postObject["categoryId"] = post.category_id
+
+    commentsQuery = Comment.getComments(post.post_id)
+    comments = []
+    for comment in commentsQuery:
+        commentObject = {}
+        commenter = User.getUserById(comment.commenter_id)
+
+        commentObject["name"] = commenter.name
+        commentObject["avatarId"] = commenter.avatar_id
+        commentObject["content"] = comment.content
+        commentObject["date"] = comment.post_time
+
+        comments.append(commentObject)
+    
+    postObject["comments"] = comments
+
+    responseJSON = {
+        "post": postObject
+    }
 
     return jsonify(responseJSON)
 
