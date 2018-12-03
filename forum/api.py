@@ -315,7 +315,7 @@ def sortPosts(posts, sortMethod):
 
 
 @app.route('/api/post', defaults={'postId': 0}, methods=['POST'])
-@app.route('/api/post/<int:postId>', methods=['GET', 'PUT'])
+@app.route('/api/post/<int:postId>', methods=['GET', 'PUT', 'DELETE'])
 def post(postId):
 
     # filterLiked = True if request.args.get("liked") == 'true' else False 
@@ -342,6 +342,19 @@ def post(postId):
 
     post = Post.getPostById(postId)
 
+    if request.method == 'DELETE':
+        poster = User.getUserByToken(token)
+  
+        if not poster:
+            returnError(403, "Invalid user. Please log in again.")
+        
+        if not (poster.user_id == post.poster_id):
+            returnError(403, "Unauthorized to delete this post.")
+
+        db.session.delete(post)
+        db.session.commit()
+        return jsonify({})
+
     if request.method == 'PUT':
         poster = User.getUserByToken(token)
   
@@ -361,7 +374,7 @@ def post(postId):
         post.title = title
         post.content = content
         post.category_id = categoryId
-        post.post_time = datetime.now()
+        post.post_time = datetime.utcnow()
         
         db.session.commit()
         db.session.refresh(post)
