@@ -18,6 +18,7 @@ app = Flask(__name__)
 # api = Api(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://seongmin:12345@localhost/test1"
 app.config['SECRET_KEY'] = '12345'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 CORS(app)
