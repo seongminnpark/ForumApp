@@ -194,9 +194,9 @@ def login():
     return jsonify(responseJSON)
 
 def getLikesReceived(user_id):
-    query = (db.session.query(User,Post,Likes)
-                .filter(Post.poster_id == user_id).filter(Likes.post_id == Post.post_id)).count()
-    return query
+    likesCount = db.session.query(User).join(Post).join(Likes).filter((Post.poster_id == user_id) & (Likes.post_id == Post.post_id)).count()
+    print(likesCount)
+    return likesCount
 
 def hashPassword(password):
     return password
