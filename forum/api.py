@@ -204,9 +204,6 @@ def hashPassword(password):
 @app.route('/api/posts', methods=['GET'])
 def posts():
 
-    if request.method == 'POST':
-        pass
-
     filterLiked = True if request.args.get("liked") == 'true' else False
     filterCategoryId = request.args.get("categoryId")
     sortMethod = request.args.get("sortMethod")
@@ -337,6 +334,7 @@ def post(postId):
         content = request.form.get('content')
         categoryId = request.form.get('categoryId')
         newPost = Post(title, content, poster.user_id, categoryId)
+        
         db.session.add(newPost)
         db.session.commit()
 
