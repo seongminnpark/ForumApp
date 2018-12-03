@@ -104,7 +104,7 @@ class Post(db.Model):
     post_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
-    post_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    post_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     poster_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.category_id'), nullable=False)
 
