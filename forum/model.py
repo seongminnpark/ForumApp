@@ -31,7 +31,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(20))
     token = db.Column(db.String(20))
     is_admin = db.Column(db.Integer)
-    date_joined = db.Column(db.DateTime, default=datetime.utcnow())
+    date_joined = db.Column(db.DateTime, default=datetime.utcnow)
     avatar_id = db.Column(db.Integer)
 
     def __init__(self, name, email, password_hash, token, is_admin, avatar_id):
@@ -143,7 +143,7 @@ class Comment(db.Model):
     __tablename__ = 'comment'
     comment_id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text, nullable=False)
-    post_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    post_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     commenter_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
 
@@ -211,7 +211,7 @@ class Ban(db.Model):
     banned_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     banner_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     report_id = db.Column(db.Integer, db.ForeignKey('report.report_id'), nullable=False)
-    ban_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    ban_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     active = db.Column(db.Integer, default=1)
 
     def __init__(self, banned_id, banner_id, report_id, active):
@@ -241,7 +241,7 @@ class Report(db.Model):
     report_id = db.Column(db.Integer, primary_key=True)
     reporter_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.post_id'), nullable=False)
-    report_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    report_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     active = db.Column(db.Integer, default=1)
 
