@@ -195,7 +195,6 @@ def login():
 
 def getLikesReceived(user_id):
     likesCount = db.session.query(User).join(Post).join(Likes).filter((Post.poster_id == user_id) & (Likes.post_id == Post.post_id)).count()
-    print(likesCount)
     return likesCount
 
 def hashPassword(password):
