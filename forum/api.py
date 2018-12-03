@@ -10,7 +10,7 @@ from datetime import datetime
 import secrets
 
 from flask import render_template, request, redirect, url_for, flash
-from sqlalchemy import func
+# from sqlalchemy import func
 # from flask_login import login_required, current_user, login_user, logout_user
 # from .form import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, CommentForm, ViewTopicForm
 from forum import app, db
@@ -21,9 +21,9 @@ import functools
 
 
 # Function
-@app.route('/')
-def index():
-    return render_template('index.html', title='index')
+# @app.route('/')
+# def index():
+#     return render_template('index.html', title='index')
 
 @app.route('/api/user', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def user():
@@ -208,8 +208,7 @@ def posts():
     sortMethod = request.args.get("sortMethod")
     token = request.headers.get("token")
 
-    if token:
-        user = User.getUserByToken(token)
+    user = User.getUserByToken(token)
 
     # Query posts.
     postsQuery = Post.getAll()
@@ -225,7 +224,6 @@ def posts():
         if filterCategoryId:
             if (filterCategoryId != 'all' and str(post.category_id) != filterCategoryId):
                 continue 
-                
 
         postObject = constructPostTile(post)
         posts.append(postObject)
