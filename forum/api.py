@@ -10,7 +10,7 @@ from datetime import datetime
 import secrets
 
 from flask import render_template, request, redirect, url_for, flash
-# from sqlalchemy import func
+from sqlalchemy import func
 # from flask_login import login_required, current_user, login_user, logout_user
 # from .form import LoginForm, RegistrationForm, UpdateAccountForm, PostForm, CommentForm, ViewTopicForm
 from forum import app, db
