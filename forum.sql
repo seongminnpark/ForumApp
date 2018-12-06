@@ -144,7 +144,7 @@ VALUES ("Irrelevant");
 
 -- Add initial users.
 INSERT INTO user (name, email, password_hash, token, is_admin, avatar_id)
-VALUES ('Ad Min', 'admin@admin.com', 'admin', 'admin', 1, 0);
+VALUES ('Admin', 'admin@admin.com', 'admin', 'admin', 1, 0);
 
 INSERT INTO user (name, email, password_hash, token, is_admin, avatar_id)
 VALUES ('User One', 'user1@user1.com', 'user1', 'user1', 0, 1);
@@ -166,55 +166,14 @@ As explained to CoinDesk by Schoedon, developers are now more certain ethereum 2
 And though ideas for ethereum 1x may “sound too radical or controversial” for now, Schoedon said that the goal is to discuss any and all ideas inclusively with community stakeholders such that “none of the upgrades will be controversial in the end.”", "2018-10-27 12:11:12");
 
 INSERT INTO post (poster_id, category_id, title, content, post_time)
-VALUES (2, 2, 'The weather is 40 degrees', "With plans for ethereum 1x originally discussed during in-person meetings at an ethereum developer conference, Devcon4, earlier this month, certain members of the community were disgruntled at the lack of public involvement. Still, the controversy has been set aside for now with the creation of public forums to openly discuss ethereum 1x.
-
-In addition, meetings to coordinate efforts on this proposed upgrade are expected to proceed under Chatham House Rules, meaning public disclosure of the content of discussions must exclude speaker attribution.", "2018-10-27 12:12:12");
+VALUES (3, 1, 'Report this', "Report this please", "2018-10-23 12:11:12");
 
 INSERT INTO post (poster_id, category_id, title, content, post_time)
-VALUES (4, 3, 'Close this forum', "Close it!", "2018-11-17 12:13:12");
-
-INSERT INTO post (poster_id, category_id, title, content, post_time)
-VALUES (2, 3, 'Close this forum', "Close it!", "2018-11-17 12:14:12");
-
-INSERT INTO post (poster_id, category_id, title, content, post_time)
-VALUES (2, 3, 'Close this forum', "Close it!", "2018-11-17 11:15:12");
-
-INSERT INTO post (poster_id, category_id, title, content, post_time)
-VALUES (2, 3, 'Close this forum', "Close it!", "2018-11-16 12:16:12");
+VALUES (1, 1, 'Delete this', "Delete this please", "2018-10-21 12:11:12");
 
 -- Add initial comments.
 INSERT INTO comment (commenter_id, post_id, content, post_time)
 VALUES (1, 1, 'Wowee', "2018-11-18 12:11:12");
-
--- Add initial reports.
-INSERT INTO report (reporter_id, post_id, report_time, content, active)
-VALUES (2, 3, '2018-08-19 12:19:28', "Stupid post", 1);
-
-INSERT INTO report (reporter_id, post_id, report_time, content, active)
-VALUES (2, 2, '2017-08-19 12:19:28', "Stupid post", 0);
-
--- Add initial report reasons belonging to reports.
-INSERT INTO report_has_reason (report_id, reason_id)
-VALUES (1, 1);
-
-INSERT INTO report_has_reason (report_id, reason_id)
-VALUES (1, 2);
-
-INSERT INTO report_has_reason (report_id, reason_id)
-VALUES (1, 3);
-
-INSERT INTO report_has_reason (report_id, reason_id)
-VALUES (2, 1);
-
-INSERT INTO report_has_reason (report_id, reason_id)
-VALUES (2, 2);
-
--- Add initial bans.
-INSERT INTO ban (banned_id, banner_id, report_id, ban_time, active)
-VALUES (3, 1, 2, "2018-10-19 10:19:28", 1);
-
-INSERT INTO ban (banned_id, banner_id, report_id, ban_time, active)
-VALUES (2, 1, 2, "2018-10-19 12:19:28", 0);
 
 -- Add initial likes.
 INSERT INTO likes (user_id, post_id)
