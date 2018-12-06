@@ -8,6 +8,7 @@
 # ---------------------
 from datetime import datetime
 import secrets
+import re
 
 from flask import render_template, request, redirect, url_for, flash
 from sqlalchemy import func
@@ -39,7 +40,7 @@ def user():
         
         if nameRaw == 'null':
             return returnError(400, "Invalid name.")
-        if emailRaw == 'null':
+        if emailRaw == 'null' or not isValidEmail(emailRaw):
             return returnError(400, "Invalid email.")
         if User.getUserByEmail(emailRaw):
             return returnError(400, "Email already exists.")
@@ -67,10 +68,13 @@ def user():
         passwordRaw = request.form.get('password')
         avatarIdRaw = request.form.get('avatarId')
         token = nameRaw
+
+        if not isValidEmail(emailRaw):
+            return returnError(403, "Invalid email.")
         
         emailUser = User.getUserByEmail(emailRaw)
         if emailUser and user.user_id != emailUser.user_id:
-            return returnError(304, "Email already in use.")
+            return returnError(403, "Email already in use.")
 
         user.name = nameRaw
         user.email = emailRaw
@@ -325,7 +329,7 @@ def post(postId):
         poster = User.getUserByToken(token)
   
         if not poster:
-            returnError(403, "Invalid user. Please log in again.")
+            return returnError(403, "Invalid user. Please log in again.")
 
         title = request.form.get('title')
         content = request.form.get('content')
@@ -542,7 +546,7 @@ def ban():
     user = User.getUserByToken(token)
 
     if not user or not user.is_admin:
-        returnError(403, "Only admins can ban users.")
+        return returnError(403, "Only admins can ban users.")
     
     # Extract report ids to ban.
     reportIdsRaw = request.form.get('reportIds').split(',')
@@ -603,7 +607,7 @@ def unban():
     user = User.getUserByToken(token)
 
     if not user or not user.is_admin:
-        returnError(403, "Only admins can ban users.")
+        return returnError(403, "Only admins can ban users.")
     
     # Extract report ids to ban.
     banIdsRaw = request.form.get('banIds').split(',')
@@ -765,6 +769,12 @@ def stats():
 def returnError(statusCode, message):
     return jsonify({"message": message}), statusCode 
 
+
+def isValidEmail(email):
+    if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return False
+    return True
+    
 # @app.route('/home')
 # def home():
 #     form = ViewTopicForm()

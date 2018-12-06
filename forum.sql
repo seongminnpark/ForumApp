@@ -166,6 +166,9 @@ As explained to CoinDesk by Schoedon, developers are now more certain ethereum 2
 And though ideas for ethereum 1x may “sound too radical or controversial” for now, Schoedon said that the goal is to discuss any and all ideas inclusively with community stakeholders such that “none of the upgrades will be controversial in the end.”", "2018-10-27 12:11:12");
 
 INSERT INTO post (poster_id, category_id, title, content, post_time)
+VALUES (4, 1, 'Hello', "Hello", "2018-10-23 12:11:12");
+
+INSERT INTO post (poster_id, category_id, title, content, post_time)
 VALUES (3, 1, 'Report this', "Report this please", "2018-10-23 12:11:12");
 
 INSERT INTO post (poster_id, category_id, title, content, post_time)
@@ -184,3 +187,18 @@ VALUES (2, 1);
 
 INSERT INTO likes (user_id, post_id)
 VALUES (3, 1);
+
+-- Add initial reports.
+INSERT INTO report (reporter_id, post_id, report_time, content, active)
+VALUES (2, 2, '2018-08-19 12:19:28', "Stupid post", 0);
+
+-- Add initial report reasons belonging to reports.
+INSERT INTO report_has_reason (report_id, reason_id)
+VALUES (1, 1);
+
+INSERT INTO report_has_reason (report_id, reason_id)
+VALUES (1, 2);
+
+-- Add initial bans.
+INSERT INTO ban (banned_id, banner_id, report_id, ban_time, active)
+VALUES (4, 1, 1, "2018-10-19 10:19:28", 1);
